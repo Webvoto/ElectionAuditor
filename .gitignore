@@ -1,0 +1,26 @@
+# User-specific files
+*.suo
+*.user
+.vs/
+.vscode/
+.idea/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+Scripts/*.tar.gz
+Scripts/*.zip
+
+# Nuget packages
+packages/
+
+# Generated nuget packages
+Scripts/*.nupkg
+
+*.pubxml
+VotingSystem.babel
+
+# Documentation files
+Webvoto.VotingSystem.*.xml

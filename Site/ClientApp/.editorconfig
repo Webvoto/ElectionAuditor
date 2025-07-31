@@ -1,0 +1,15 @@
+# Inherit from parent (~/.editorconfig)
+root = false
+
+[*]
+charset = utf-8
+trim_trailing_whitespace = true
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
+# Use spaces for json files to avoid clashing with npm tools
+[*.json]
+indent_style = space
+indent_size = 2
