@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$packageName = "votingsystem"
+$packageName = "electionauditor"
 $dockerContainerRegistryFullName = "webvotocontainers.azurecr.io"
 $dockerContainerRegistrySubscription = "Webvoto - PayAsYouGo"
 
