@@ -1,0 +1,47 @@
+
+<div class="card p-4 my-3">
+	<h3>Validação de Comprovante de Participação</h3>
+	<mat-divider></mat-divider>
+
+	@if(receipt && session) {
+		<h4 class=" mt-2 mb-1">{{session.sessionLabel | sessionLabel}}</h4>
+		<app-prop>
+			{{receipt.session}}
+		</app-prop>
+
+		<h4>Dados do {{session.memberLabel | memberLabel}}</h4>
+
+		<app-prop [label]="session.identifierLabel | identifierLabel">
+			{{receipt.memberIdentifier}}
+		</app-prop>
+
+		<app-prop [label]="session.memberLabel | memberLabel">
+			{{receipt.memberName}}
+		</app-prop>
+
+		<h4>{{session.questionSetLabel | questionSetLabel}}</h4>
+		@for(question of receipt.votedQuestions; track question) {
+			<h5 class="mb-1">{{question.name}}</h5>
+			<app-prop label="Data">
+				{{question.date | date:'dd/MM/yyyy HH:mm:ss a z'}}
+			</app-prop>
+			<app-prop class="mb-3" label="Código de verificação">
+				{{question.checkCode}}
+			</app-prop>
+		}
+
+		<h4>Autenticação</h4>
+		<app-prop>
+			{{receipt.authentication}}
+		</app-prop>
+	}
+
+	@if(validation) {
+		<div class="alert my-3 d-flex align-items-center py-4" [ngClass]="validation.class" role="alert">
+			<mat-icon>{{validation.iconName}}</mat-icon>
+			<div class="mx-2">
+				{{validation.message}}
+			</div>
+		</div>
+	}
+</div>

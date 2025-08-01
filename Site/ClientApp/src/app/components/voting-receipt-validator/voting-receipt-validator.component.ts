@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Constants } from '../../classes/constants';
 import { PropComponent } from '../common/prop/prop.component';
@@ -9,6 +9,24 @@ import { ReceiptModel } from '../../api/receipt';
 import { SessionModel } from '../../api/session';
 import { MatDividerModule } from '@angular/material/divider';
 import base32 from 'hi-base32';
+import { MatIconModule } from '@angular/material/icon';
+import { IdentifierLabelPipe } from '../../pipes/identifier-label.pipe';
+import { SessionLabelPipe } from '../../pipes/session-label.pipe';
+import { QuestionSetLabelPipe } from '../../pipes/question-set-label.pipe';
+import { MemberLabelPipe } from '../../pipes/member-label.pipe';
+
+enum ValidationResults {
+	Valid = "Valid",
+	Invalid = "Invalid",
+	NotSet = "NotSet ",
+}
+
+interface Validation {
+	result: ValidationResults;
+	class: string;
+	iconName: string;
+	message: string;
+}
 
 @Component({
 	selector: 'app-voting-receipt-validator',
@@ -16,36 +34,69 @@ import base32 from 'hi-base32';
 	imports: [
 		CommonModule,
 		PropComponent,
-		MatDividerModule
+		MatDividerModule,
+		MatIconModule,
+		IdentifierLabelPipe,
+		SessionLabelPipe,
+		QuestionSetLabelPipe,
+		MemberLabelPipe,
 	],
 	templateUrl: './voting-receipt-validator.component.html',
 	styleUrls: ['./voting-receipt-validator.component.scss']
 })
-export class VotingReceiptValidatorComponent {
+export class VotingReceiptValidatorComponent implements OnInit {
 
 	receipt: ReceiptModel | null = null;
 	session: SessionModel | null = null;
 
+	messageToValidate: string = '';
+	validation: Validation | null = null;
+
+	possibleValidationsMap: Record<ValidationResults, Validation> = {
+		[ValidationResults.Valid]: {
+			result: ValidationResults.Valid,
+			message: 'Comprovante válido',
+			iconName: 'check_circle',
+			class: 'alert-success'
+		},
+		[ValidationResults.Invalid]: {
+			result: ValidationResults.Invalid,
+			message: 'Comprovante inválido',
+			iconName: 'cancel',
+			class: 'alert-danger'
+		},
+		[ValidationResults.NotSet]: {
+			result: ValidationResults.NotSet,
+			message: 'Não foi possível concluir a validação',
+			iconName: 'warning',
+			class: 'alert-warning'
+		}
+	};
+	
 	constructor(
 		private readonly route: ActivatedRoute,
 		private readonly sessionService: SessionService,
-
 	) {
-		this.processRouteData();
 	}
 
-	
+	async ngOnInit() {
+		await this.processRouteData();
+
+		this.validation = this.possibleValidationsMap[ValidationResults.Valid];
+	}
+
 	async processRouteData() {
 		const data = this.route.snapshot.paramMap.get('data');
 
 		if (!data) {
 			return;
 		}
-
 		const parts = data.split(Constants.QRCodeFieldSeparator);
 		if (parts.length < 5) {
 			return;
 		}
+
+		this.messageToValidate = JSON.stringify(parts.slice(0, parts.length - 1));
 
 		const sessionCode = this.decodeQRCodeCodeField(parts[1]);
 		this.session = await this.sessionService.get(sessionCode.toLowerCase());
