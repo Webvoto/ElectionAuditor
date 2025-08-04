@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Webvoto.ElectionAuditor.Site;
 
@@ -12,27 +13,29 @@ public class Program {
 		}
 
 		var builder = WebApplication.CreateBuilder(args);
-		
+
 		configureServices(builder.Services);
 
 		var app = builder.Build();
-		
+
 		configure(app);
 
 		run(app);
 	}
 
 	private static void configureServices(IServiceCollection services) {
-		
-		services.AddControllers();
-		
+
+		services.AddControllers().AddJsonOptions(options => {
+			options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+		});
+
 		services.AddSpaStaticFiles(spaStaticFiles => {
 			spaStaticFiles.RootPath = "ClientApp/dist/election-auditor-client-app/browser";
 		});
 	}
 
 	private static void configure(WebApplication app) {
-		
+
 		var env = app.Services.GetRequiredService<IWebHostEnvironment>();
 
 		app.UseSpaStaticFiles();
@@ -42,7 +45,7 @@ public class Program {
 		app.UseAuthorization();
 
 #pragma warning disable ASP0014 // Suggest using top level route registrations (simply calling `app.MapControllers()` is currently causing issues)
-		
+
 		app.UseEndpoints(endpoints => {
 			endpoints.MapControllers();
 		});
@@ -57,7 +60,7 @@ public class Program {
 	}
 
 	private static void run(WebApplication app) {
-		
+
 		var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 		logger.LogInformation("Starting application");
