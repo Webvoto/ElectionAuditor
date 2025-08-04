@@ -8,7 +8,7 @@ export const routes: Routes = [
 		component: HomeComponent,
 	},
 	{
-		path: 'qr/cv/:data',
+		path: 'QR/CV/:data',
 		component: VotingReceiptValidatorComponent
 	}
 ];
