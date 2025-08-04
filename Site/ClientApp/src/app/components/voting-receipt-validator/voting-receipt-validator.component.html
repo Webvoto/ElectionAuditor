@@ -4,22 +4,22 @@
 	<mat-divider></mat-divider>
 
 	@if(receipt && session) {
-		<h4 class=" mt-2 mb-1">{{session.sessionLabel | sessionLabel}}</h4>
+		<h4 class=" mt-2 mb-1">{{session.sessionLabel}}</h4>
 		<app-prop>
 			{{receipt.session}}
 		</app-prop>
 
-		<h4>Dados do {{session.memberLabel | memberLabel}}</h4>
+		<h4>Dados do {{session.memberLabel}}</h4>
 
-		<app-prop [label]="session.identifierLabel | identifierLabel">
+		<app-prop [label]="session.identifierLabel">
 			{{receipt.memberIdentifier}}
 		</app-prop>
 
-		<app-prop [label]="session.memberLabel | memberLabel">
+		<app-prop [label]="session.memberLabel">
 			{{receipt.memberName}}
 		</app-prop>
 
-		<h4>{{session.questionSetLabel | questionSetLabel}}</h4>
+		<h4>{{session.questionSetLabel}}</h4>
 		@for(question of receipt.votedQuestions; track question) {
 			<h5 class="mb-1">{{question.name}}</h5>
 			<app-prop label="Data">

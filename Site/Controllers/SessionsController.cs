@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SimpleBase;
 using Webvoto.ElectionAuditor.Api;
 
@@ -22,19 +22,19 @@ CVJPYMohxdSVZpfs2bZlO3aeRouDcxJi70F9T7FNDyDFLgJVByuhIGTFQA==
 				new QuestionModel { Code = "ELE_DIR", Name = "Eleição da diretoria 2025" },
 			],
 			DocumentAuthenticationPublicKey = DocumentAuthenticationPublicKey,
-			SessionLabel = SessionLabels.Assembly,
-			QuestionSetLabel = QuestionSetLabels.Questions,
-			IdentifierLabel = IdentifierLabels.CpfOrCnpj,
-			MemberLabel = MemberLabels.Member,
+			SessionLabel = "Assembleia",
+			QuestionSetLabel = "Questões",
+			IdentifierLabel = "CPF ou CNPJ",
+			MemberLabel = "Membro",
 		},
 		new SessionModel {
 			Id = new Guid("5DF9ED94-E356-460B-8A83-61FB672F73A1"),
 			Name = "Sessão ordinária-II 2025",
 			Questions = [],
 			DocumentAuthenticationPublicKey = DocumentAuthenticationPublicKey,
-			SessionLabel = SessionLabels.Session,
-			QuestionSetLabel = QuestionSetLabels.Questions,
-			IdentifierLabel = IdentifierLabels.CpfOrCnpj,
+			SessionLabel = "Sessão",
+			QuestionSetLabel = "Questões",
+			IdentifierLabel = "CPF ou CNPJ",
 			MemberLabel = "Associado",
 		},
 		new SessionModel {
@@ -42,10 +42,10 @@ CVJPYMohxdSVZpfs2bZlO3aeRouDcxJi70F9T7FNDyDFLgJVByuhIGTFQA==
 			Name = "Recadastramento",
 			Questions = [],
 			DocumentAuthenticationPublicKey = DocumentAuthenticationPublicKey,
-			SessionLabel = SessionLabels.Consultation,
-			QuestionSetLabel = QuestionSetLabels.Questions,
-			IdentifierLabel = IdentifierLabels.CpfOrCnpj,
-			MemberLabel = MemberLabels.Member,
+			SessionLabel = "Consulta",
+			QuestionSetLabel = "Questões",
+			IdentifierLabel = "CPF ou CNPJ",
+			MemberLabel = "Membro",
 		},
 	];
 

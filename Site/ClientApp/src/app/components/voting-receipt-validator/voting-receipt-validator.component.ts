@@ -10,10 +10,6 @@ import { SessionModel } from '../../api/session';
 import { MatDividerModule } from '@angular/material/divider';
 import base32 from 'hi-base32';
 import { MatIconModule } from '@angular/material/icon';
-import { IdentifierLabelPipe } from '../../pipes/identifier-label.pipe';
-import { SessionLabelPipe } from '../../pipes/session-label.pipe';
-import { QuestionSetLabelPipe } from '../../pipes/question-set-label.pipe';
-import { MemberLabelPipe } from '../../pipes/member-label.pipe';
 import { CryptoVerificationService } from '../../services/crypto-verification.service';
 
 enum ValidationResults {
@@ -37,10 +33,6 @@ interface Validation {
 		PropComponent,
 		MatDividerModule,
 		MatIconModule,
-		IdentifierLabelPipe,
-		SessionLabelPipe,
-		QuestionSetLabelPipe,
-		MemberLabelPipe,
 	],
 	templateUrl: './voting-receipt-validator.component.html',
 	styleUrls: ['./voting-receipt-validator.component.scss']

@@ -1,4 +1,3 @@
-import { IdentifierLabels, MemberLabels, QuestionSetLabels, SessionLabels } from "./enums";
 import { QuestionModel } from "./question";
 
 export interface SessionModel {
@@ -6,8 +5,8 @@ export interface SessionModel {
 	name: string;
 	documentAuthenticationPublicKey: string;
 	questions: QuestionModel[];
-	sessionLabel: SessionLabels;
-	questionSetLabel: QuestionSetLabels;
-	identifierLabel: IdentifierLabels;
-	memberLabel: MemberLabels;
+	sessionLabel: string;
+	questionSetLabel: string;
+	identifierLabel: string;
+	memberLabel: string;
 }

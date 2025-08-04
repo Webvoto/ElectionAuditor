@@ -11,13 +11,13 @@ namespace Webvoto.ElectionAuditor.Api {
 
 		public string DocumentAuthenticationPublicKey { get; set; }
 
-		public SessionLabels SessionLabel { get; set; }
+		public string SessionLabel { get; set; }
 
-		public QuestionSetLabels QuestionSetLabel { get; set; }
+		public string QuestionSetLabel { get; set; }
 
-		public IdentifierLabels IdentifierLabel { get; set; }
+		public string IdentifierLabel { get; set; }
 
-		public MemberLabels MemberLabel { get; set; }
+		public string MemberLabel { get; set; }
 
 		public List<QuestionModel> Questions { get; set; }
 	}
