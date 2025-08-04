@@ -5,8 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class CryptoVerificationService {
 
-	public async verifyECDSASignature(publicKeyPem: string, message: string, signatureBase64: string) {
-		const publicKeyBuffer = this.pemToArrayBuffer(publicKeyPem);
+	public async verifyECDsaSignature(publicKeyPem: string, message: string, signatureBase64: string) {
+		const publicKeyBuffer = this.base64ToArrayBuffer(publicKeyPem);
 
 		const cryptoKey = await crypto.subtle.importKey(
 			'spki',
@@ -38,29 +38,13 @@ export class CryptoVerificationService {
 		return valid;
 	}
 
-	private pemToArrayBuffer(pem: string): ArrayBuffer {
-		const b64 = pem
-			.replace(/-----BEGIN PUBLIC KEY-----/, '')
-			.replace(/-----END PUBLIC KEY-----/, '')
-			.replace(/\s+/g, '');
+	private base64ToArrayBuffer(b64: string): ArrayBuffer {
 		const binaryDerString = atob(b64);
 		const len = binaryDerString.length;
 		const bytes = new Uint8Array(len);
 		for (let i = 0; i < len; i++) {
 			bytes[i] = binaryDerString.charCodeAt(i);
 		}
-
-		return bytes.buffer;
-	}
-
-	private base64ToArrayBuffer(base64: string): ArrayBuffer {
-		const binaryString = atob(base64);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; i++) {
-			bytes[i] = binaryString.charCodeAt(i);
-		}
-
 		return bytes.buffer;
 	}
 }

@@ -8,10 +8,7 @@ namespace Webvoto.ElectionAuditor.Site.Controllers;
 [Route("api/sessions")]
 public class SessionsController : ControllerBase {
 
-	private static readonly string DocumentAuthenticationPublicKey = @"-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4kwmCjwj+SAmpT/CfZixVeuspujw
-CVJPYMohxdSVZpfs2bZlO3aeRouDcxJi70F9T7FNDyDFLgJVByuhIGTFQA==
------END PUBLIC KEY-----";
+	private static readonly string DocumentAuthenticationPublicKey = @"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4kwmCjwj+SAmpT/CfZixVeuspujwCVJPYMohxdSVZpfs2bZlO3aeRouDcxJi70F9T7FNDyDFLgJVByuhIGTFQA==";
 
 	private static readonly List<SessionModel> Sessions = [
 		new SessionModel {

@@ -4,8 +4,7 @@ import { Constants } from '../../classes/constants';
 import { PropComponent } from '../common/prop/prop.component';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session.service';
-import { VotedQuestionModel } from '../../api/question';
-import { ReceiptModel } from '../../api/receipt';
+import { ReceiptModel, VotedQuestionModel } from '../../api/receipt';
 import { SessionModel } from '../../api/session';
 import { MatDividerModule } from '@angular/material/divider';
 import base32 from 'hi-base32';
@@ -78,7 +77,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		await this.processRouteData();
 
 		if (this.session && this.receipt) {
-			let isValid = await this.cryptoVerificationService.verifyECDSASignature(this.session.documentAuthenticationPublicKey, this.messageToValidate, this.signatureBase64);
+			let isValid = await this.cryptoVerificationService.verifyECDsaSignature(this.session.documentAuthenticationPublicKey, this.messageToValidate, this.signatureBase64);
 			this.validation = isValid ? this.possibleValidationsMap[ValidationResults.Valid] : this.possibleValidationsMap[ValidationResults.Invalid];
 		} else {
 			this.validation = this.possibleValidationsMap[ValidationResults.NotSet];

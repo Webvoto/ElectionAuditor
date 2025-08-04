@@ -1,5 +1,3 @@
-import { QuestionModel } from "./question";
-
 export interface SessionModel {
 	id: string;
 	name: string;
@@ -9,4 +7,9 @@ export interface SessionModel {
 	questionSetLabel: string;
 	identifierLabel: string;
 	memberLabel: string;
+}
+
+export interface QuestionModel {
+	code: string;
+	name: string;
 }
