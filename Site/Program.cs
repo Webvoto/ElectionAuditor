@@ -1,5 +1,9 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Webvoto.ElectionAuditor.Site.Authentication;
+using Webvoto.ElectionAuditor.Site.Authorization;
+using Webvoto.ElectionAuditor.Site.Configuration;
+using Webvoto.ElectionAuditor.Site.Services;
 
 namespace Webvoto.ElectionAuditor.Site;
 
@@ -14,7 +18,7 @@ public class Program {
 
 		var builder = WebApplication.CreateBuilder(args);
 
-		configureServices(builder.Services);
+		configureServices(builder.Services, builder.Configuration);
 
 		var app = builder.Build();
 
@@ -23,12 +27,22 @@ public class Program {
 		run(app);
 	}
 
-	private static void configureServices(IServiceCollection services) {
+	private static void configureServices(IServiceCollection services, IConfiguration configuration) {
+
+		services.AddHttpClient();
+
+		services.AddAppConfiguration(configuration);
+
+		services.AddAppServices();
+
+		services.AddAppAuthentication();
+
+		services.AddAppAuthorization();
 
 		services.AddControllers().AddJsonOptions(options => {
 			options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 		});
-
+		
 		services.AddSpaStaticFiles(spaStaticFiles => {
 			spaStaticFiles.RootPath = "ClientApp/dist/election-auditor-client-app/browser";
 		});
@@ -41,6 +55,8 @@ public class Program {
 		app.UseSpaStaticFiles();
 
 		app.UseRouting();
+
+		app.UseAuthentication();
 
 		app.UseAuthorization();
 
