@@ -3,27 +3,41 @@
 	<h3>Validação de Comprovante de Participação</h3>
 	<mat-divider></mat-divider>
 
-	@if(receipt && session) {
-		<h4 class=" mt-2 mb-1">{{session.sessionLabel}}</h4>
-		<app-prop>
-			{{receipt.session}}
-		</app-prop>
+	@if (receipt) {
 
-		<h4>Dados do {{session.memberLabel}}</h4>
+		<h4 class=" mt-2 mb-1">{{session?.sessionLabel || 'Sessão'}}</h4>
 
-		<app-prop [label]="session.identifierLabel">
+		@if (session) {
+			<app-prop label="Nome">
+				{{receipt.session}}
+			</app-prop>
+
+			<app-prop label="URL">
+				{{session?.url}}
+			</app-prop>
+		} @else {
+			<app-prop label="ID">
+				{{receipt.session}} (não encontrada)
+			</app-prop>
+		}
+
+
+		<h4>{{session?.memberLabel || 'Membro'}}</h4>
+
+		<app-prop [label]="session?.identifierLabel ?? 'Identificador'">
 			{{receipt.memberIdentifier}}
 		</app-prop>
 
-		<app-prop [label]="session.memberLabel">
+		<app-prop label="Nome">
 			{{receipt.memberName}}
 		</app-prop>
 
-		<h4>{{session.questionSetLabel}}</h4>
-		@for(question of receipt.votedQuestions; track question) {
+		<h4>{{session?.questionSetLabel || 'Questões'}}</h4>
+
+		@for (question of receipt.votedQuestions; track question) {
 			<h5 class="mb-1">{{question.name}}</h5>
 			<app-prop label="Data">
-				{{question.date | date:'dd/MM/yyyy HH:mm:ss a z'}}
+				{{question.date | date:'dd/MM/yyyy HH:mm:ss z'}}
 			</app-prop>
 			<app-prop class="mb-3" label="Código de verificação">
 				{{question.checkCode}}
@@ -31,11 +45,13 @@
 		}
 
 		<h4>Autenticação</h4>
+
 		<app-prop>
 			{{receipt.authentication}}
 		</app-prop>
 	}
-	@if(validation) {
+
+	@if (validation) {
 		<div class="alert my-3 d-flex align-items-center py-4" [ngClass]="validation.class" role="alert">
 			<mat-icon>{{validation.iconName}}</mat-icon>
 			<div class="mx-2">

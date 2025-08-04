@@ -33,8 +33,6 @@ export class CryptoVerificationService {
 			messageBuffer
 		);
 
-		console.log('Signature valid:', valid);
-
 		return valid;
 	}
 

@@ -54,13 +54,13 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		},
 		[ValidationResults.Invalid]: {
 			result: ValidationResults.Invalid,
-			message: 'Comprovante inválido',
+			message: 'Comprovante adulterado!',
 			iconName: 'cancel',
 			class: 'alert-danger'
 		},
 		[ValidationResults.NotSet]: {
 			result: ValidationResults.NotSet,
-			message: 'Não foi possível concluir a validação',
+			message: 'Não foi possível validar o comprovante. Isso pode indicar que o comprovante foi adulterado.',
 			iconName: 'warning',
 			class: 'alert-warning'
 		}
@@ -70,8 +70,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		private readonly route: ActivatedRoute,
 		private readonly sessionService: SessionService,
 		private readonly cryptoVerificationService: CryptoVerificationService,
-	) {
-	}
+	) { }
 
 	async ngOnInit() {
 		await this.processRouteData();
@@ -121,7 +120,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 			const decodedCode = this.decodeQRCodeCodeField(code);
 			const question = this.getQuestion(decodedCode);
 			questions.push({
-				name: question?.name ?? decodedCode,
+				name: question?.name ?? `@${decodedCode}`,
 				date: this.decodeQRCodeDateField(date),
 				checkCode
 			});
@@ -154,13 +153,13 @@ export class VotingReceiptValidatorComponent implements OnInit {
 	}
 
 	private decodeQRCodeDateField(dateStr: string) {
-		const year = parseInt(dateStr.slice(0, 2), 10) + 2000;
-		const month = parseInt(dateStr.slice(2, 4), 10) - 1;
-		const day = parseInt(dateStr.slice(4, 6), 10);
-		const hour = parseInt(dateStr.slice(6, 8), 10);
-		const minute = parseInt(dateStr.slice(8, 10), 10);
-		const second = parseInt(dateStr.slice(10, 12), 10);
+		const year = parseInt(dateStr.slice(0, 2));
+		const month = parseInt(dateStr.slice(2, 4));
+		const day = parseInt(dateStr.slice(4, 6));
+		const hour = parseInt(dateStr.slice(6, 8));
+		const minute = parseInt(dateStr.slice(8, 10));
+		const second = parseInt(dateStr.slice(10, 12));
 
-		return new Date(Date.UTC(year, month, day, hour, minute, second));
+		return new Date(Date.UTC(year + 2000, month - 1, day, hour, minute, second));
 	}
 }

@@ -14,6 +14,7 @@ public class SessionsController : ControllerBase {
 		new SessionModel {
 			Id = new Guid("A2933FF1-FFEC-4B06-AE12-F318A2AE1557"),
 			Name = "Assembléia ordinária-I 2025",
+			Url = "https://localhost:44350",
 			Questions = [
 				new QuestionModel { Code = "APR_CNT", Name = "Aprovação da prestação de contas 2024" },
 				new QuestionModel { Code = "ELE_DIR", Name = "Eleição da diretoria 2025" },
@@ -27,6 +28,7 @@ public class SessionsController : ControllerBase {
 		new SessionModel {
 			Id = new Guid("5DF9ED94-E356-460B-8A83-61FB672F73A1"),
 			Name = "Sessão ordinária-II 2025",
+			Url = "https://localhost:44350",
 			Questions = [],
 			DocumentAuthenticationPublicKey = DocumentAuthenticationPublicKey,
 			SessionLabel = "Sessão",
@@ -37,6 +39,7 @@ public class SessionsController : ControllerBase {
 		new SessionModel {
 			Id = new Guid("99F6337D-C4CC-4E69-859C-E9B31019856A"),
 			Name = "Recadastramento",
+			Url = "https://localhost:44350",
 			Questions = [],
 			DocumentAuthenticationPublicKey = DocumentAuthenticationPublicKey,
 			SessionLabel = "Consulta",
