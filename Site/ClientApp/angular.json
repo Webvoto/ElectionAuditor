@@ -36,7 +36,12 @@
               "src/styles.scss",
               "node_modules/bootstrap/scss/bootstrap.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": [ "mixed-decls", "color-functions", "global-builtin", "import" ]
+              }
+            }
           },
           "configurations": {
             "production": {
