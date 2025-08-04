@@ -14,6 +14,7 @@ import { IdentifierLabelPipe } from '../../pipes/identifier-label.pipe';
 import { SessionLabelPipe } from '../../pipes/session-label.pipe';
 import { QuestionSetLabelPipe } from '../../pipes/question-set-label.pipe';
 import { MemberLabelPipe } from '../../pipes/member-label.pipe';
+import { CryptoVerificationService } from '../../services/crypto-verification.service';
 
 enum ValidationResults {
 	Valid = "Valid",
@@ -46,9 +47,10 @@ interface Validation {
 })
 export class VotingReceiptValidatorComponent implements OnInit {
 
-	receipt: ReceiptModel | null = null;
 	session: SessionModel | null = null;
+	receipt: ReceiptModel | null = null;
 
+	signatureBase64: string = '';
 	messageToValidate: string = '';
 	validation: Validation | null = null;
 
@@ -76,13 +78,19 @@ export class VotingReceiptValidatorComponent implements OnInit {
 	constructor(
 		private readonly route: ActivatedRoute,
 		private readonly sessionService: SessionService,
+		private readonly cryptoVerificationService: CryptoVerificationService,
 	) {
 	}
 
 	async ngOnInit() {
 		await this.processRouteData();
 
-		this.validation = this.possibleValidationsMap[ValidationResults.Valid];
+		if (this.session && this.receipt) {
+			let isValid = await this.cryptoVerificationService.verifyECDSASignature(this.session.documentAuthenticationPublicKey, this.messageToValidate, this.signatureBase64);
+			this.validation = isValid ? this.possibleValidationsMap[ValidationResults.Valid] : this.possibleValidationsMap[ValidationResults.Invalid];
+		} else {
+			this.validation = this.possibleValidationsMap[ValidationResults.NotSet];
+		}
 	}
 
 	async processRouteData() {
@@ -97,6 +105,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		}
 
 		this.messageToValidate = JSON.stringify(parts.slice(0, parts.length - 1));
+		this.signatureBase64 = this.decodeQRCodeBinaryField(parts[parts.length - 1]);
 
 		const sessionCode = this.decodeQRCodeCodeField(parts[1]);
 		this.session = await this.sessionService.get(sessionCode.toLowerCase());
@@ -144,8 +153,9 @@ export class VotingReceiptValidatorComponent implements OnInit {
 
 	private decodeQRCodeBinaryField(field: string) {
 		try {
-			const bytes = base32.decode.asBytes(field);
-			return new TextDecoder().decode(Uint8Array.from(bytes));
+			const base32Array = base32.decode.asBytes(field);
+			const binaryString = base32Array.map((num) => String.fromCharCode(num)).join('');
+			return btoa(binaryString);
 		} catch {
 			console.error('Error decoding binary field:', field);
 			return '';
