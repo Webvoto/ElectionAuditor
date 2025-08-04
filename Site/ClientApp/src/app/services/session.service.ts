@@ -14,7 +14,7 @@ export class SessionService {
 		private readonly http: HttpClient,
 	) { }
 
-	get(code: string) {
-		return firstValueFrom(this.http.get<SessionModel | null>(`${apiRoute}/${code}`));
+	get(idEncoded: string) {
+		return firstValueFrom(this.http.get<SessionModel | null>(`${apiRoute}/${idEncoded}`));
 	}
 }

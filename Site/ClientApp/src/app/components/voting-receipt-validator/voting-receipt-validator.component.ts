@@ -107,13 +107,13 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		this.messageToValidate = JSON.stringify(parts.slice(0, parts.length - 1));
 		this.signatureBase64 = this.decodeQRCodeBinaryField(parts[parts.length - 1]);
 
-		const sessionCode = this.decodeQRCodeCodeField(parts[1]);
-		this.session = await this.sessionService.get(sessionCode.toLowerCase());
+		const sessionIdEncoded = parts[1];
+		this.session = await this.sessionService.get(sessionIdEncoded);
 
 		const questionFields = parts.slice(4, parts.length - 1);
 
 		this.receipt = {
-			session: this.session?.name ?? sessionCode,
+			session: this.session?.name ?? sessionIdEncoded,
 			memberIdentifier: parts[2],
 			memberName: this.decodeQRCodeStringField(parts[3]),
 			votedQuestions: this.parseQuestions(questionFields),

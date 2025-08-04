@@ -2,7 +2,7 @@ import { IdentifierLabels, MemberLabels, QuestionSetLabels, SessionLabels } from
 import { QuestionModel } from "./question";
 
 export interface SessionModel {
-	code: string;
+	id: string;
 	name: string;
 	documentAuthenticationPublicKey: string;
 	questions: QuestionModel[];
