@@ -15,6 +15,10 @@ namespace Webvoto.ElectionAuditor.Site.Services {
 
 
 	) {
+		private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions {
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+		};
+
 		private CancellationTokenSource? sleepCts;
 		private string? environmentUrl;
 		private Task? task;
@@ -59,7 +63,7 @@ namespace Webvoto.ElectionAuditor.Site.Services {
 				httpResponse.EnsureSuccessStatusCode();
 				var rawResponse = await httpResponse.Content.ReadAsStringAsync(ct);
 				logger.LogDebug("Probed environment {EnvironmentUrl} in {Duration} ms, result: {ResponseBody}", environmentUrl, sw.ElapsedMilliseconds, rawResponse);
-				var response = JsonSerializer.Deserialize<EnvironmentModel>(rawResponse) ?? throw new Exception("Unexpected null response");
+				var response = JsonSerializer.Deserialize<EnvironmentModel>(rawResponse, JsonSerializerOptions) ?? throw new Exception("Unexpected null response");
 				if (response.Sessions != null) {
 					foreach (var session in response.Sessions) {
 						session.Url = environmentUrl; // override URL with the URL we are watching
