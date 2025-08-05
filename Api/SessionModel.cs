@@ -11,7 +11,7 @@ namespace Webvoto.ElectionAuditor.Api {
 
 		public string Url { get; set; }
 
-		public string DocumentAuthenticationPublicKey { get; set; }
+		public byte[] DocumentAuthenticationPublicKey { get; set; }
 
 		public string SessionLabel { get; set; }
 

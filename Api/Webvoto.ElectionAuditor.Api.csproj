@@ -1,7 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>0.1.0</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Webvoto</Authors>
+    <Owners>Webvoto</Owners>
+    <Description>Models for Webvoto Election Auditor API</Description>
+    <Copyright>Copyright Webvoto</Copyright>
+    <PackageTags>Webvoto Election Auditor API</PackageTags>
   </PropertyGroup>
 
 </Project>
