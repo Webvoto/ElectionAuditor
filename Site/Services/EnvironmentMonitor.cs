@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text.Json;
 using Webvoto.ElectionAuditor.Api;
 using Webvoto.ElectionAuditor.Site.Configuration;
 
@@ -59,7 +59,7 @@ namespace Webvoto.ElectionAuditor.Site.Services {
 				httpResponse.EnsureSuccessStatusCode();
 				var rawResponse = await httpResponse.Content.ReadAsStringAsync(ct);
 				logger.LogDebug("Probed environment {EnvironmentUrl} in {Duration} ms, result: {ResponseBody}", environmentUrl, sw.ElapsedMilliseconds, rawResponse);
-				var response = JsonConvert.DeserializeObject<EnvironmentModel>(rawResponse) ?? throw new Exception("Unexpected null response");
+				var response = JsonSerializer.Deserialize<EnvironmentModel>(rawResponse) ?? throw new Exception("Unexpected null response");
 				if (response.Sessions != null) {
 					foreach (var session in response.Sessions) {
 						session.Url = environmentUrl; // override URL with the URL we are watching
