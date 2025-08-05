@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
 using Webvoto.ElectionAuditor.Site.Configuration;
 
 namespace Webvoto.ElectionAuditor.Site.Services {
@@ -25,14 +25,14 @@ namespace Webvoto.ElectionAuditor.Site.Services {
 
 		protected T? ReadFileAs<T>(FileInfo file) {
 			var json = File.ReadAllText(file.FullName, JsonEncoding);
-			return JsonConvert.DeserializeObject<T>(json);
+			return JsonSerializer.Deserialize<T>(json);
 		}
 
 		protected T? ReadFileIfExistsAs<T>(FileInfo file)
 			=> file.Exists ? ReadFileAs<T>(file) : default(T);
 
 		protected void WriteFile(FileInfo file, object value) {
-			var json = JsonConvert.SerializeObject(value);
+			var json = JsonSerializer.Serialize(value);
 			if (!file.Directory!.Exists) {
 				file.Directory.Create();
 			}

@@ -6,7 +6,8 @@ public static class Startup {
 
 		services.AddSingleton<EnvironmentRepository>();
 		services.AddSingleton<SessionRepository>();
-		services.AddHostedService<EnvironmentMonitoringService>();
+		services.AddSingleton<EnvironmentMonitoringService>();
+		services.AddHostedService(svcs => svcs.GetRequiredService<EnvironmentMonitoringService>());
 		services.AddTransient<EnvironmentMonitor>();
 	}
 }

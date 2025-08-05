@@ -20,19 +20,14 @@ public static class ApiKeyAuthenticationExtensions {
 	}
 }
 
-public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions> {
+public class ApiKeyAuthenticationHandler(
 
-	private readonly IOptions<AppConfig> appConfig;
+	IOptionsMonitor<AuthenticationSchemeOptions> options,
+	ILoggerFactory logger,
+	UrlEncoder encoder,
+	IOptions<AppConfig> appConfig
 
-	public ApiKeyAuthenticationHandler(
-		IOptionsMonitor<AuthenticationSchemeOptions> options,
-		ILoggerFactory logger,
-		UrlEncoder encoder,
-		IOptions<AppConfig> appConfig
-	) : base(options, logger, encoder) {
-		this.appConfig = appConfig;
-	}
-
+) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder) {
 	protected override Task<AuthenticateResult> HandleAuthenticateAsync() {
 		return Task.FromResult(handleAuthenticateAsync());
 	}

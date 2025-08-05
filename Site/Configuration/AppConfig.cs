@@ -11,7 +11,7 @@ public class AppConfig {
 
 	public TimeSpan EnvironmentMonitorPeriod { get; set; } = TimeSpan.FromMinutes(5);
 
-	public TimeSpan EnvironmentMonitorRetryPeriod { get; set; } = TimeSpan.FromMinutes(1);
+	public TimeSpan EnvironmentMonitorRetryDelay { get; set; } = TimeSpan.FromMinutes(1);
 
 	public string StoragePath { get; set; } = "/data";
 }

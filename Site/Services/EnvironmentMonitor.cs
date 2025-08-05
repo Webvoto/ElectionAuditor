@@ -39,7 +39,7 @@ namespace Webvoto.ElectionAuditor.Site.Services {
 				while (!ct.IsCancellationRequested) {
 					try {
 						var success = await probeAsync(ct);
-						await sleepAsync(success ? appConfig.Value.EnvironmentMonitorPeriod : appConfig.Value.EnvironmentMonitorRetryPeriod, ct);
+						await sleepAsync(success ? appConfig.Value.EnvironmentMonitorPeriod : appConfig.Value.EnvironmentMonitorRetryDelay, ct);
 					} catch (OperationCanceledException) when (ct.IsCancellationRequested) {
 						// Expected during graceful shutdown, do nothing
 					}
