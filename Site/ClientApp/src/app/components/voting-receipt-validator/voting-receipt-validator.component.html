@@ -25,12 +25,12 @@
 
 		<h4>{{session?.memberLabel || 'Membro'}}</h4>
 
-		<app-prop [label]="session?.identifierLabel ?? 'Identificador'">
-			{{receipt.memberIdentifier}}
-		</app-prop>
-
 		<app-prop label="Nome">
 			{{receipt.memberName}}
+		</app-prop>
+
+		<app-prop [label]="session?.identifierLabel ?? 'Identificador'">
+			{{receipt.memberIdentifier}}
 		</app-prop>
 
 		<h4>{{session?.questionSetLabel || 'Questões'}}</h4>
