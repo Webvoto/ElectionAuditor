@@ -10,6 +10,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import base32 from 'hi-base32';
 import { MatIconModule } from '@angular/material/icon';
 import { CryptoVerificationService } from '../../services/crypto-verification.service';
+import { DateTime, FixedOffsetZone } from 'luxon';
+import { DateTimePipe } from '../../pipes/date-time.pipe';
 
 enum ValidationResults {
 	Valid = "Valid",
@@ -32,6 +34,7 @@ interface Validation {
 		PropComponent,
 		MatDividerModule,
 		MatIconModule,
+		DateTimePipe,
 	],
 	templateUrl: './voting-receipt-validator.component.html',
 	styleUrls: ['./voting-receipt-validator.component.scss']
@@ -153,13 +156,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 	}
 
 	private decodeQRCodeDateField(dateStr: string) {
-		const year = parseInt(dateStr.slice(0, 2));
-		const month = parseInt(dateStr.slice(2, 4));
-		const day = parseInt(dateStr.slice(4, 6));
-		const hour = parseInt(dateStr.slice(6, 8));
-		const minute = parseInt(dateStr.slice(8, 10));
-		const second = parseInt(dateStr.slice(10, 12));
-
-		return new Date(Date.UTC(year + 2000, month - 1, day, hour, minute, second));
+		let date = DateTime.fromFormat(dateStr, 'yyMMddHHmmss', { zone: FixedOffsetZone.utcInstance });
+		return this.session ? date.setZone(this.session.timeZone) : date;
 	}
 }

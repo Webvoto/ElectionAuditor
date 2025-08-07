@@ -8,6 +8,7 @@ export interface SessionModel {
 	questionSetLabel: string;
 	identifierLabel: string;
 	memberLabel: string;
+	timeZone: string;
 }
 
 export interface QuestionModel {

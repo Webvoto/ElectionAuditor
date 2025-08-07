@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 export interface ReceiptModel {
 	session: string;
 	memberIdentifier: string;
@@ -8,6 +10,6 @@ export interface ReceiptModel {
 
 export interface VotedQuestionModel {
 	name: string;
-	date: Date;
+	date: DateTime;
 	checkCode: string;
 }

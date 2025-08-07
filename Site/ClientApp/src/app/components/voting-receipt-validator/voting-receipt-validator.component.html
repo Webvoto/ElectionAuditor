@@ -38,7 +38,7 @@
 		@for (question of receipt.votedQuestions; track question) {
 			<h5 class="mb-1">{{question.name}}</h5>
 			<app-prop label="Data">
-				{{question.date | date:'dd/MM/yyyy HH:mm:ss z'}}
+				{{question.date | dateTime}}
 			</app-prop>
 			<app-prop class="mb-3" label="Código de verificação">
 				{{question.checkCode}}
