@@ -21,6 +21,8 @@ namespace Webvoto.ElectionAuditor.Api {
 
 		public string MemberLabel { get; set; }
 
+		public string TimeZone { get; set; }
+
 		public List<QuestionModel> Questions { get; set; }
 	}
 }
