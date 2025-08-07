@@ -156,9 +156,9 @@ export class VotingReceiptValidatorComponent implements OnInit {
 	}
 
 	private decodeQRCodeDateField(dateStr: string) {
-		let match = /^(?<localDate>\d{12})(?<offsetSign>[PN])(?<offsetHours>\d{2})(?<offsetMinutes>\d{2})$/.exec(dateStr);
+		let match = /^(?<localDate>\d{12})(?<offsetSign>-?)(?<offsetHours>\d{2})(?<offsetMinutes>\d{2})$/.exec(dateStr);
 		if (match?.groups) {
-			let offsetString = `UTC${(match.groups['offsetSign'] == 'N' ? '-' : '+')}${match.groups['offsetHours']}:${match.groups['offsetMinutes']}`;
+			let offsetString = `UTC${match.groups['offsetSign'] || '+'}${match.groups['offsetHours']}:${match.groups['offsetMinutes']}`;
 			let date = DateTime.fromFormat(match.groups['localDate'], 'yyMMddHHmmss', { zone: FixedOffsetZone.parseSpecifier(offsetString) });
 			return date;
 		} else {
