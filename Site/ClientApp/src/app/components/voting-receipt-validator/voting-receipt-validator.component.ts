@@ -141,7 +141,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 	}
 
 	private decodeQRCodeCodeField(value: string | null) {
-		return value?.replaceAll(Constants.QRCodeUnderscoreCodeEncoding, '_') ?? '';
+		return value?.toLowerCase() ?? '';
 	}
 
 	private decodeQRCodeBinaryField(field: string) {
