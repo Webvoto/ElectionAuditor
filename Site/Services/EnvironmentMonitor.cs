@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using Webvoto.ElectionAuditor.Api;
 using Webvoto.ElectionAuditor.Site.Configuration;
@@ -58,8 +59,11 @@ namespace Webvoto.ElectionAuditor.Site.Services {
 		private async Task<bool> probeAsync(CancellationToken ct) {
 			try {
 				var httpClient = httpClientFactory.CreateClient($"EnvironmentMonitor<{environmentUrl}>");
+				var requestUri = new Uri(new Uri(environmentUrl!), "api/system/environment");
+				var httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUri);
+				httpRequest.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue("pt"));
 				var sw = Stopwatch.StartNew();
-				var httpResponse = await httpClient.GetAsync(new Uri(new Uri(environmentUrl!), "api/system/environment"), ct);
+				var httpResponse = await httpClient.SendAsync(httpRequest, ct);
 				httpResponse.EnsureSuccessStatusCode();
 				var rawResponse = await httpResponse.Content.ReadAsStringAsync(ct);
 				logger.LogDebug("Probed environment {EnvironmentUrl} in {Duration} ms, result: {ResponseBody}", environmentUrl, sw.ElapsedMilliseconds, rawResponse);
