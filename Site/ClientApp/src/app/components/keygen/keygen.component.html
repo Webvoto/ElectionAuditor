@@ -1,0 +1,27 @@
+<div class="card p-4 my-3">
+	<h3>Geração e exportação de chaves</h3>
+	<hr />
+
+	<div>
+		<button type="button" (click)="generate()" [disabled]="generating">
+			{{ generating ? 'Gerando…' : 'Gerar chaves' }}
+		</button>
+		<button type="button" (click)="baixarPublica()" [disabled]="!hasKeys">Baixar chave pública</button>
+		<button type="button" (click)="baixarPrivada()" [disabled]="!hasKeys">Baixar chave privada</button>
+	</div>
+
+	<div *ngIf="hasKeys" class="info">
+		<div>
+			<strong><em>Thumbprint</em>:</strong>
+			<code class="mono">{{ thumbprint }}</code>
+		</div>
+	</div>
+
+	<hr />
+	<p class="note">Toda a operação ocorre no navegador. Não há chamadas ao backend.</p>
+
+	<p class="mt-2 note">
+		Esta validação é feita diretamente no navegador utilizando código aberto. Veja o <a href="https://github.com/Webvoto/ElectionAuditor/blob/main/Site/ClientApp/src/app/components/voting-receipt-validator/voting-receipt-validator.component.ts">código fonte</a>.
+	</p>
+</div>
+
