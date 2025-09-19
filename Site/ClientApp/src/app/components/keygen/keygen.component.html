@@ -2,12 +2,17 @@
 	<h3>Geração e exportação de chaves</h3>
 	<hr />
 
-	<div>
-		<button type="button" (click)="generate()" [disabled]="generating">
+	<div class="action">
+		<button mat-stroked-button type="button" (click)="generate()" [disabled]="generating">
 			{{ generating ? 'Gerando…' : 'Gerar chaves' }}
 		</button>
-		<button type="button" (click)="baixarPublica()" [disabled]="!hasKeys">Baixar chave pública</button>
-		<button type="button" (click)="baixarPrivada()" [disabled]="!hasKeys">Baixar chave privada</button>
+		<button mat-stroked-button color="primary" (click)="baixarPublica()" [disabled]="!hasKeys">
+			Baixar chave pública
+		</button>
+
+		<button mat-stroked-button color="primary" (click)="baixarPrivada()" [disabled]="!hasKeys">
+			Baixar chave privada
+		</button>
 	</div>
 
 	<div *ngIf="hasKeys" class="info">

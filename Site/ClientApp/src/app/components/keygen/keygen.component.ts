@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as forge from 'node-forge';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
 	selector: 'app-keygen',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, MatButtonModule],
 	templateUrl: './keygen.component.html',
 	styleUrls: ['./keygen.component.scss'],
 })
