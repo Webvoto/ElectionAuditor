@@ -13,6 +13,12 @@
 		<button mat-stroked-button color="primary" (click)="downloadPrivate()" [disabled]="!hasKeys">
 			Baixar chave privada
 		</button>
+
+		<button mat-stroked-button color="primary" (click)="discardKeys()" [disabled]="!hasKeys">
+			Descartar chaves
+		</button>
+
+
 	</div>
 
 	<div *ngIf="hasKeys" class="info">

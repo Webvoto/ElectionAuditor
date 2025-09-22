@@ -23,6 +23,8 @@ export class KeygenComponent {
 		return !!(this.publicKeyPem && this.privateKeyEncryptedPem);
 	}
 
+
+
 	async generate(): Promise<void> {
 		this.generating = true;
 		setTimeout(() => {
@@ -65,6 +67,13 @@ export class KeygenComponent {
 	downloadPrivate(): void {
 		if (!this.hasKeys) return;
 		this.download(this.privateKeyEncryptedPem, `chave-${this.moniker || 'priv'}-2-privada.pem`, 'application/x-pem-file');
+	}
+
+	discardKeys(): void {
+		this.publicKeyPem = '';
+		this.privateKeyEncryptedPem = '';
+		this.thumbprint = '';
+		this.moniker = '';
 	}
 
 	private download(content: string, filename: string, mime = 'application/octet-stream'): void {
