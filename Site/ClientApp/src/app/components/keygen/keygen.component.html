@@ -14,10 +14,22 @@
 			Baixar chave privada
 		</button>
 
-		<button mat-stroked-button color="primary" (click)="discardKeys()" [disabled]="!hasKeys">
+		<button mat-flat-button color="warn" (click)="confirmDiscard(confirmTpl)" [disabled]="!hasKeys">
 			Descartar chaves
 		</button>
 
+		<ng-template #confirmTpl>
+			<h2 mat-dialog-title>Confirmar descarte</h2>
+
+			<div mat-dialog-content>
+				<p> Deseja realmente descartar as chaves geradas?</p>
+			</div>
+
+			<div mat-dialog-actions>
+				<button mat-stroked-button [mat-dialog-close]="false">Cancelar</button>
+				<button mat-flat-button [mat-dialog-close]="true">descartar</button>
+			</div>
+		</ng-template>
 
 	</div>
 
