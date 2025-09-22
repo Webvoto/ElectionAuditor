@@ -18,48 +18,51 @@ export class KeygenComponent {
 	moniker = '';
 	iterations = 100_000;
 
+
 	get hasKeys(): boolean {
 		return !!(this.publicKeyPem && this.privateKeyEncryptedPem);
 	}
 
 	async generate(): Promise<void> {
 		this.generating = true;
-		try {
-			const senha = '1234';
-			const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair(2048);
+		setTimeout(() => {
+			try {
+				const senha = '1234';
+				const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair(2048);
 
-			this.publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+				this.publicKeyPem = forge.pki.publicKeyToPem(publicKey);
 
-			this.privateKeyEncryptedPem = forge.pki.encryptRsaPrivateKey(privateKey, senha, {
-				algorithm: 'aes256',
-				count: this.iterations,
-				prfAlgorithm: 'sha256',
-				saltSize: 16,
-			});
+				this.privateKeyEncryptedPem = forge.pki.encryptRsaPrivateKey(privateKey, senha, {
+					algorithm: 'aes256',
+					count: this.iterations,
+					prfAlgorithm: 'sha256',
+					saltSize: 16,
+				});
 
-			const spkiAsn1 = forge.pki.publicKeyToAsn1(publicKey);
-			const spkiDerBytes = forge.asn1.toDer(spkiAsn1).getBytes();
+				const spkiAsn1 = forge.pki.publicKeyToAsn1(publicKey);
+				const spkiDerBytes = forge.asn1.toDer(spkiAsn1).getBytes();
 
-			const md = forge.md.sha256.create();
-			md.update(spkiDerBytes, 'raw');
-			const digest = md.digest();
+				const md = forge.md.sha256.create();
+				md.update(spkiDerBytes, 'raw');
+				const digest = md.digest();
 
-			this.moniker = digest.toHex().slice(0, 6);
-			this.thumbprint = digest.toHex();
+				this.moniker = digest.toHex().slice(0, 6);
+				this.thumbprint = digest.toHex();
 
-		} catch (err) {
-			console.error('Falha ao gerar chaves:', err);
-		} finally {
-			this.generating = false;
-		}
+			} catch (err) {
+				console.error('Falha ao gerar chaves:', err);
+			} finally {
+				this.generating = false;
+			}
+		}, 100);
 	}
 
-	baixarPublica(): void {
+	downloadPublic(): void {
 		if (!this.hasKeys) return;
 		this.download(this.publicKeyPem, `chave-${this.moniker || 'pub'}-1-publica.pem`, 'application/x-pem-file');
 	}
 
-	baixarPrivada(): void {
+	downloadPrivate(): void {
 		if (!this.hasKeys) return;
 		this.download(this.privateKeyEncryptedPem, `chave-${this.moniker || 'priv'}-2-privada.pem`, 'application/x-pem-file');
 	}

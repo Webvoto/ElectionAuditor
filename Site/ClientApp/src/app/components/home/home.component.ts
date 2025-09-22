@@ -15,8 +15,4 @@ export class HomeComponent {
 		private router: Router
 	) { }
 
-
-	navigateToKeygen() {
-		this.router.navigate(['keygen'], { relativeTo: this.route });
-	}
 }

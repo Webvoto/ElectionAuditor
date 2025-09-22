@@ -3,14 +3,14 @@
 	<hr />
 
 	<div class="action">
-		<button mat-stroked-button type="button" (click)="generate()" [disabled]="generating">
+		<button mat-stroked-button type="button" (click)="generate()" [disabled]="generating || hasKeys">
 			{{ generating ? 'Gerando…' : 'Gerar chaves' }}
 		</button>
-		<button mat-stroked-button color="primary" (click)="baixarPublica()" [disabled]="!hasKeys">
+		<button mat-stroked-button color="primary" (click)="downloadPublic()" [disabled]="!hasKeys">
 			Baixar chave pública
 		</button>
 
-		<button mat-stroked-button color="primary" (click)="baixarPrivada()" [disabled]="!hasKeys">
+		<button mat-stroked-button color="primary" (click)="downloadPrivate()" [disabled]="!hasKeys">
 			Baixar chave privada
 		</button>
 	</div>
