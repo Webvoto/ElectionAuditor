@@ -1,5 +1,5 @@
 <div class="card p-4 my-3">
-	<h3>Geração e exportação de chaves</h3>
+	<h3>Geração e download de chaves</h3>
 	<hr />
 
 	<div class="action">
@@ -36,7 +36,7 @@
 		</ng-template>
 
 		<ng-template #pwdTpl>
-			<h2 mat-dialog-title>Exportação de chave privada</h2>
+			<h2 mat-dialog-title>Baixar chave privada</h2>
 
 			<div mat-dialog-content class="dialog-grid">
 
@@ -59,12 +59,13 @@
 			</div>
 
 			<div mat-dialog-actions class="actions">
+				<button mat-flat-button [disabled]="formInvalid" [mat-dialog-close]="password.value">
+					Baixar chave privada
+				</button>
 				<button mat-stroked-button [mat-dialog-close]="null">
 					Cancelar
 				</button>
-				<button mat-flat-button [disabled]="formInvalid" [mat-dialog-close]="password.value">
-					Exportar chave privada
-				</button>
+
 			</div>
 		</ng-template>
 

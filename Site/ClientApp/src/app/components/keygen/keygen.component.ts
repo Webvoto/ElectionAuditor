@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import * as forge from 'node-forge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
@@ -33,7 +33,17 @@ export class KeygenComponent {
 	iterations = 100_000;
 
 	password = new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(4)] });
-	confirm = new FormControl<string>('', { nonNullable: true, validators: [Validators.required] });
+	confirm = new FormControl<string>('', {
+		nonNullable: true, validators: [
+			Validators.required,
+			(control: AbstractControl): ValidationErrors | null => {
+				if (this.password && control.value != this.password.value) {
+					return { passwordMismatch: true };
+				}
+				return null;
+			}
+
+	] });
 
 	passwordError(): string {
 		if (this.password.hasError('required')) return 'Informe a senha';
