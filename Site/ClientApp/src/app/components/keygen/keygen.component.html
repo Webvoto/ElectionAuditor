@@ -10,7 +10,7 @@
 			Baixar chave pública
 		</button>
 
-		<button mat-stroked-button color="primary" (click)="downloadPrivate()" [disabled]="!hasKeys">
+		<button mat-stroked-button color="primary" (click)="downloadPrivate(pwdTpl)" [disabled]="!hasKeys">
 			Baixar chave privada
 		</button>
 
@@ -26,8 +26,45 @@
 			</div>
 
 			<div mat-dialog-actions>
-				<button mat-stroked-button [mat-dialog-close]="false">Cancelar</button>
-				<button mat-flat-button [mat-dialog-close]="true">descartar</button>
+				<button mat-flat-button class="discard-btn" [mat-dialog-close]="true">
+					descartar
+				</button>
+				<button mat-stroked-button [mat-dialog-close]="false">
+					Cancelar
+				</button>
+			</div>
+		</ng-template>
+
+		<ng-template #pwdTpl>
+			<h2 mat-dialog-title>Exportação de chave privada</h2>
+
+			<div mat-dialog-content class="dialog-grid">
+
+				<mat-form-field>
+					<mat-label>Coloque uma senha</mat-label>
+					<input matInput type="password" placeholder="senha" [formControl]="password" (blur)="passwordError()" required />
+					@if (password.invalid || passwordError()) {
+					<mat-error>{{passwordError()}}</mat-error>
+					}
+				</mat-form-field>
+
+				<mat-form-field>
+					<mat-label>confirme a senha</mat-label>
+					<input matInput type="password" placeholder="senha" [formControl]="confirm" (blur)="confirmError()" required />
+					@if (confirm.invalid || confirmError()) {
+					<mat-error>{{confirmError()}}</mat-error>
+					}
+				</mat-form-field>
+
+			</div>
+
+			<div mat-dialog-actions class="actions">
+				<button mat-stroked-button [mat-dialog-close]="null">
+					Cancelar
+				</button>
+				<button mat-flat-button [disabled]="formInvalid" [mat-dialog-close]="password.value">
+					Exportar chave privada
+				</button>
 			</div>
 		</ng-template>
 
