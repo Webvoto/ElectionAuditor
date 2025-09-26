@@ -1,0 +1,9 @@
+.actions {
+	display: flex;
+	gap: 12px;
+}
+.dialog-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}

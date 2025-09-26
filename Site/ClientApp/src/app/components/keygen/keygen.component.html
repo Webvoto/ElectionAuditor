@@ -1,0 +1,90 @@
+<div class="card p-4 my-3">
+	<h3>Geração e download de chaves</h3>
+	<hr />
+
+	<div class="actions">
+		<button mat-flat-button color="primary" (click)="generate()" [disabled]="generating || hasKeys">
+			{{ generating ? 'Gerando…' : 'Gerar chaves' }}
+		</button>
+
+		<button mat-flat-button color="primary" (click)="downloadPublic()" [disabled]="!hasKeys">
+			Baixar chave pública
+		</button>
+
+		<button mat-flat-button color="primary" (click)="downloadPrivate(pwdTpl)" [disabled]="!hasKeys">
+			Baixar chave privada
+		</button>
+
+		<button mat-stroked-button color="warn" (click)="confirmDiscard(confirmTpl)" [disabled]="!hasKeys">
+			Descartar chaves
+		</button>
+	</div>
+
+	<div *ngIf="hasKeys" class="mt-3">
+		<div>
+			Thumbprint:
+			<code>{{ thumbprint }}</code>
+		</div>
+	</div>
+
+	<hr />
+
+	<p class="mt-2 note">
+		Toda a operação ocorre no navegador, sem qualquer tipo de comunicação, utilizando código aberto. Veja o
+		<a href="https://github.com/Webvoto/ElectionAuditor/blob/main/Site/ClientApp/src/app/components/keygen/keygen.component.ts" target="_blank">
+			código fonte
+			<mat-icon inline>open_in_new</mat-icon>
+		</a>
+	</p>
+</div>
+
+<ng-template #pwdTpl>
+	<h2 mat-dialog-title>Baixar chave privada</h2>
+
+	<div mat-dialog-content class="dialog-grid">
+
+		<mat-form-field>
+			<mat-label>Insira uma senha</mat-label>
+			<input matInput type="password" placeholder="Senha" [formControl]="password" (blur)="passwordError()" required />
+			@if (password.invalid || passwordError()) {
+				<mat-error>{{passwordError()}}</mat-error>
+			}
+		</mat-form-field>
+
+		<mat-form-field>
+			<mat-label>Confirme a senha</mat-label>
+			<input matInput type="password" placeholder="Senha" [formControl]="confirm" (blur)="confirmError()" required />
+			@if (confirm.invalid || confirmError()) {
+				<mat-error>{{confirmError()}}</mat-error>
+			}
+		</mat-form-field>
+
+	</div>
+
+	<div mat-dialog-actions class="actions">
+		<button mat-flat-button [disabled]="formInvalid" [mat-dialog-close]="password.value">
+			Baixar chave privada
+		</button>
+		<button mat-stroked-button [mat-dialog-close]="null">
+			Cancelar
+		</button>
+
+	</div>
+</ng-template>
+
+<ng-template #confirmTpl>
+	<h2 mat-dialog-title>Confirmar descarte</h2>
+
+	<div mat-dialog-content>
+		<p>Deseja realmente descartar as chaves geradas?</p>
+	</div>
+
+	<div mat-dialog-actions>
+		<button mat-flat-button class="discard-btn" [mat-dialog-close]="true">
+			Descartar
+		</button>
+		<button mat-stroked-button [mat-dialog-close]="false">
+			Cancelar
+		</button>
+	</div>
+</ng-template>

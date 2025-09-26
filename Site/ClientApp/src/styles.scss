@@ -21,3 +21,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .note {
 	font-style: italic;
 }
+
+.mat-mdc-dialog-container .mat-mdc-dialog-actions button.discard-btn {
+	background-color: #d32f2f;
+	color: white;
+}
+
+.mat-icon.mat-icon-inline {
+	vertical-align: middle;
+}
