@@ -7,6 +7,9 @@ import { FormsModule, ReactiveFormsModule, FormControl, Validators, AbstractCont
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { delay } from '../../classes/utils';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
 	selector: 'app-keygen',
@@ -17,7 +20,10 @@ import { firstValueFrom } from 'rxjs';
 		MatButtonModule,
 		MatDialogModule,
 		MatFormFieldModule,
-		MatInputModule,],
+		MatInputModule,
+		MatIconModule,
+		MatDividerModule,
+	],
 	templateUrl: './keygen.component.html',
 	styleUrls: ['./keygen.component.scss'],
 })
@@ -30,7 +36,6 @@ export class KeygenComponent {
 	privateKeyObj: forge.pki.rsa.PrivateKey | null = null;
 	thumbprint = '';
 	moniker = '';
-	iterations = 100_000;
 
 	password = new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(4)] });
 	confirm = new FormControl<string>('', {
@@ -47,7 +52,7 @@ export class KeygenComponent {
 
 	passwordError(): string {
 		if (this.password.hasError('required')) return 'Informe a senha';
-		if (this.password.hasError('minlength')) return 'Mínimo de 4 caracteres';
+		if (this.password.hasError('minlength')) return 'Digite pelo menos 4 caracteres';
 
 		return '';
 	}
@@ -67,29 +72,33 @@ export class KeygenComponent {
 	}
 
 	async generate(): Promise<void> {
+
 		this.generating = true;
-		setTimeout(() => {
-			try {
-				const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair(2048);
 
-				this.privateKeyObj = privateKey;
-				this.publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+		await delay(100);
 
-				const spkiAsn1 = forge.pki.publicKeyToAsn1(publicKey);
-				const spkiDerBytes = forge.asn1.toDer(spkiAsn1).getBytes();
+		try {
 
-				const md = forge.md.sha256.create();
-				md.update(spkiDerBytes, 'raw');
-				const digest = md.digest();
+			const { privateKey, publicKey } = forge.pki.rsa.generateKeyPair(2048);
 
-				this.moniker = digest.toHex().slice(0, 6);
-				this.thumbprint = digest.toHex();
-			} catch (err) {
-				console.error('Falha ao gerar chaves:', err);
-			} finally {
-				this.generating = false;
-			}
-		}, 100);
+			this.privateKeyObj = privateKey;
+			this.publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+
+			const spkiAsn1 = forge.pki.publicKeyToAsn1(publicKey);
+			const spkiDerBytes = forge.asn1.toDer(spkiAsn1).getBytes();
+
+			const md = forge.md.sha256.create();
+			md.update(spkiDerBytes, 'raw');
+			const digest = md.digest();
+
+			this.moniker = digest.toHex().slice(0, 6);
+			this.thumbprint = digest.toHex();
+
+		} catch (err) {
+			console.error('Falha ao gerar chaves:', err);
+		} finally {
+			this.generating = false;
+		}
 	}
 
 	downloadPublic(): void {
@@ -111,7 +120,7 @@ export class KeygenComponent {
 
 		const pem = forge.pki.encryptRsaPrivateKey(this.privateKeyObj, pwdValue, {
 			algorithm: 'aes256',
-			count: this.iterations,
+			count: 200_000,
 			prfAlgorithm: 'sha256',
 			saltSize: 16,
 		});
