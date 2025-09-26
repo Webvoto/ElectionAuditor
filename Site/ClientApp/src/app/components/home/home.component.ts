@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -10,9 +10,5 @@ import { MatButtonModule } from '@angular/material/button';
 	styleUrls: ["./home.component.scss"],
 })
 export class HomeComponent {
-	constructor(
-		public route: ActivatedRoute,
-		private router: Router
-	) { }
 
 }

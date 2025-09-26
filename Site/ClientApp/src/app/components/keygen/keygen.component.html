@@ -6,6 +6,7 @@
 		<button mat-flat-button color="primary" (click)="generate()" [disabled]="generating || hasKeys">
 			{{ generating ? 'Gerando…' : 'Gerar chaves' }}
 		</button>
+
 		<button mat-flat-button color="primary" (click)="downloadPublic()" [disabled]="!hasKeys">
 			Baixar chave pública
 		</button>
