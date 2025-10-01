@@ -1,9 +1,9 @@
-import { Component, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as forge from 'node-forge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormsModule, ReactiveFormsModule, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, Validators, AbstractControl, ValidationErrors, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
@@ -27,48 +27,58 @@ import { MatDividerModule } from '@angular/material/divider';
 	templateUrl: './keygen.component.html',
 	styleUrls: ['./keygen.component.scss'],
 })
-export class KeygenComponent {
-	constructor(private dialog: MatDialog) { }
+export class KeygenComponent implements OnInit {
+	constructor(
+		private dialog: MatDialog,
+		private readonly fb: FormBuilder,
+	) { }
 
 	generating = false;
+	hasKeys = false;
+	verifying = false;
 	publicKeyPem = '';
 	privateKeyEncryptedPem = '';
 	privateKeyObj: forge.pki.rsa.PrivateKey | null = null;
 	thumbprint = '';
 	moniker = '';
 
-	password = new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(4)] });
-	confirm = new FormControl<string>('', {
-		nonNullable: true, validators: [
-			Validators.required,
-			(control: AbstractControl): ValidationErrors | null => {
-				if (this.password && control.value != this.password.value) {
-					return { passwordMismatch: true };
-				}
-				return null;
-			}
+	form!: FormGroup;
+	minPasswordLength = 4;
 
-	] });
+	verifyForm!: FormGroup;
 
-	passwordError(): string {
-		if (this.password.hasError('required')) return 'Informe a senha';
-		if (this.password.hasError('minlength')) return 'Digite pelo menos 4 caracteres';
-
-		return '';
-	}
-	confirmError(): string {
-		if (this.confirm.hasError('required')) return 'Confirme a senha';
-		if (this.password.value != this.confirm.value) return 'As senhas não coincidem';
-
-		return '';
+	ngOnInit(): void {
+		this.initializeForm();
 	}
 
-	get hasKeys(): boolean {
-		return !!(this.publicKeyPem && this.privateKeyObj);
+	private initializeForm(): void {
+		this.form = this.fb.group({
+			password: ['', [Validators.required, Validators.minLength(this.minPasswordLength)]],
+			confirm: ['', [Validators.required]]
+		}, { validators: this.passwordsMatchValidator });
+
+		this.verifyForm = this.fb.group({
+			publicKey: ['', [Validators.required]],
+			privateKey: ['', [Validators.required]],
+			password: ['', [Validators.required]]
+		});
+	}
+
+	private passwordsMatchValidator = (group: FormGroup) => {
+		const p = group.get('password')?.value;
+		const c = group.get('confirm')?.value;
+		if (p !== c) {
+			return { passwordMismatch: true };
+		}
+		return null;
+	};
+
+	get passwordValue(): string {
+		return this.form.get('password')?.value;
 	}
 
 	get formInvalid(): boolean {
-		return !!this.passwordError() || !!this.confirmError();
+		return this.form.invalid;
 	}
 
 	async generate(): Promise<void> {
@@ -94,6 +104,8 @@ export class KeygenComponent {
 			this.moniker = digest.toHex().slice(0, 6);
 			this.thumbprint = digest.toHex();
 
+			this.hasKeys = true;
+
 		} catch (err) {
 			console.error('Falha ao gerar chaves:', err);
 		} finally {
@@ -109,16 +121,16 @@ export class KeygenComponent {
 	async downloadPrivate(passwordtpl: TemplateRef<boolean>): Promise<void> {
 		if (!this.hasKeys || !this.privateKeyObj) return;
 
+		this.initializeForm();
+
 		const ref = this.dialog.open(passwordtpl, { disableClose: true });
 		const password: string = await firstValueFrom(ref.afterClosed());
 
-		const pwdValue = this.password.value;
-		this.password.reset('');
-		this.confirm.reset('');
+		this.initializeForm();
 
 		if (!password) return;
 
-		const pem = forge.pki.encryptRsaPrivateKey(this.privateKeyObj, pwdValue, {
+		const pem = forge.pki.encryptRsaPrivateKey(this.privateKeyObj, password, {
 			algorithm: 'aes256',
 			count: 200_000,
 			prfAlgorithm: 'sha256',
@@ -139,6 +151,7 @@ export class KeygenComponent {
 		this.privateKeyObj = null;
 		this.thumbprint = '';
 		this.moniker = '';
+		this.hasKeys = false;
 	}
 
 	private download(content: string, filename: string, mime = 'application/octet-stream'): void {
@@ -152,5 +165,31 @@ export class KeygenComponent {
 		document.body.appendChild(a);
 		a.click();
 		setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+	}
+
+	openVerifyDialog(tpl: TemplateRef<boolean>): void {
+		this.verifyForm.reset();
+		this.verifying = false;
+		this.dialog.open(tpl, { disableClose: false });
+	}
+
+	async loadFile(event: Event, controlName: 'publicKey' | 'privateKey'): Promise<void> {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		try {
+			const text = await file.text();
+			this.verifyForm.get(controlName)?.setValue(text);
+			this.verifyForm.get(controlName)?.markAsDirty();
+			this.verifyForm.updateValueAndValidity();
+
+		} finally {
+			input.value = '';
+		}
+	}
+
+	async verifyKey(): Promise<void> {
+		
 	}
 }
