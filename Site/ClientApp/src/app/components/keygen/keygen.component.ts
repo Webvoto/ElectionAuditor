@@ -11,6 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { delay } from '../../classes/utils';
 import { MatDividerModule } from '@angular/material/divider';
 
+type VerifyState = 'idle' | 'ok' | 'badpass' | 'mismatch' | 'parse';
+
 @Component({
 	selector: 'app-keygen',
 	standalone: true,
@@ -35,7 +37,7 @@ export class KeygenComponent implements OnInit {
 
 	generating = false;
 	hasKeys = false;
-	verifying = false;
+
 	publicKeyPem = '';
 	privateKeyEncryptedPem = '';
 	privateKeyObj: forge.pki.rsa.PrivateKey | null = null;
@@ -46,6 +48,8 @@ export class KeygenComponent implements OnInit {
 	minPasswordLength = 4;
 
 	verifyForm!: FormGroup;
+	verifyState: VerifyState = 'idle';
+	verifying = false;
 
 	ngOnInit(): void {
 		this.initializeForm();
@@ -169,8 +173,9 @@ export class KeygenComponent implements OnInit {
 
 	openVerifyDialog(tpl: TemplateRef<boolean>): void {
 		this.verifyForm.reset();
+		this.verifyState = 'idle';
 		this.verifying = false;
-		this.dialog.open(tpl, { disableClose: false });
+		this.dialog.open(tpl, { disableClose: false, width: '450px' });
 	}
 
 	async loadFile(event: Event, controlName: 'publicKey' | 'privateKey'): Promise<void> {
@@ -190,6 +195,49 @@ export class KeygenComponent implements OnInit {
 	}
 
 	async verifyKey(): Promise<void> {
-		
+		if (this.verifyForm.invalid || this.verifying) return;
+
+		this.verifying = true;
+		this.verifyState = 'idle';
+
+		await delay(100);
+
+		const publicPem = (this.verifyForm.get('publicKey')?.value).trim();
+		const privatePem = (this.verifyForm.get('privateKey')?.value).trim();
+		const password = this.verifyForm.get('password')?.value;
+
+		try {
+			let providedPub: forge.pki.rsa.PublicKey;
+			try {
+				providedPub = forge.pki.publicKeyFromPem(publicPem) as forge.pki.rsa.PublicKey;
+			} catch {
+				this.verifyState = 'parse';
+				return;
+			}
+
+			let privateKey = forge.pki.decryptRsaPrivateKey(privatePem, password);
+
+			if (!privateKey) {
+				this.verifyState = 'badpass';
+				return;
+			}
+
+			const pubFromPriv = forge.pki.rsa.setPublicKey(privateKey.n, privateKey.e);
+			const sameN = pubFromPriv.n.compareTo(providedPub.n) === 0;
+			const sameE = pubFromPriv.e.compareTo(providedPub.e) === 0;
+
+			if (!(sameN && sameE)) {
+				this.verifyState = 'mismatch';
+				return;
+			} else {
+				this.verifyState = 'ok';
+				return
+			}
+
+		} catch {
+			this.verifyState = 'parse';
+		} finally {
+			this.verifying = false;
+		}
 	}
 }

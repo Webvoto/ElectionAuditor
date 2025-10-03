@@ -94,7 +94,7 @@
 </ng-template>
 
 <ng-template #verifyTpl>
-	<form [formGroup]="verifyForm">
+	<form [formGroup]="verifyForm" (ngSubmit)="verifyKey()">
 		<h2 mat-dialog-title>Verificar chave</h2>
 
 		<div mat-dialog-content class="dialog-grid">
@@ -121,6 +121,23 @@
 				<mat-label>senha</mat-label>
 				<input matInput type="password" placeholder="Senha da chave privada" formControlName="password" required />
 			</mat-form-field>
+
+			<div class="mt-2" *ngIf="verifyState !== 'idle'">
+				<mat-divider class="my-2"></mat-divider>
+
+				<p *ngIf="verifyState === 'ok'">
+					<strong>Chaves válidas:</strong> a pública corresponde à privada.
+				</p>
+				<p *ngIf="verifyState === 'badpass'">
+					<strong>Senha incorreta ou chave privada inválida.</strong>
+				</p>
+				<p *ngIf="verifyState === 'mismatch'">
+					<strong>Não corresponde:</strong> a pública não bate com a privada.
+				</p>
+				<p *ngIf="verifyState === 'parse'">
+					<strong>Formato inválido:</strong> verifique os blocos PEM fornecidos.
+				</p>
+			</div>
 
 		</div>
 
