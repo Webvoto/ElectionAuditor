@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as forge from 'node-forge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormsModule, ReactiveFormsModule, FormControl, Validators, AbstractControl, ValidationErrors, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
