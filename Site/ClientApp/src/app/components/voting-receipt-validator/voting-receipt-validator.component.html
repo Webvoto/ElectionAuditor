@@ -40,6 +40,11 @@
 			<app-prop label="Data">
 				{{question.date | dateTime}}
 			</app-prop>
+			@if (question.votes) {
+				<app-prop label="Escolhas">
+					{{question.votes}}
+				</app-prop>
+			}
 			<app-prop class="mb-3" label="Código de verificação">
 				{{question.checkCode}}
 			</app-prop>
