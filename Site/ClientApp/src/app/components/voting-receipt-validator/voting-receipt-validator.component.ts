@@ -100,6 +100,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		this.messageToValidate = JSON.stringify(parts.slice(0, parts.length - 1));
 		this.signatureBase64 = this.decodeQRCodeBinaryField(parts[parts.length - 1]);
 
+		const qrCodeVersion = parts[0];
 		const sessionIdEncoded = parts[1];
 		this.session = await this.sessionService.get(sessionIdEncoded);
 
@@ -109,9 +110,20 @@ export class VotingReceiptValidatorComponent implements OnInit {
 			session: this.session?.name ?? sessionIdEncoded,
 			memberIdentifier: parts[2],
 			memberName: this.decodeQRCodeStringField(parts[3]),
-			votedQuestions: this.parseQuestions(questionFields),
+			votedQuestions: this.getParsedQuestions(qrCodeVersion, questionFields),
 			authentication: parts[parts.length - 1]
 		};
+	}
+
+	private getParsedQuestions(version: string, fields: any[]): any[] {
+		switch (version) {
+			case '1':
+				return this.parseQuestions(fields);
+			case '2':
+				return this.parseQuestionsV2(fields);
+			default:
+				return this.parseQuestionsV2(fields);
+		}
 	}
 
 	private parseQuestions(fields: string[]) {
@@ -129,6 +141,29 @@ export class VotingReceiptValidatorComponent implements OnInit {
 			});
 		}
 
+		return questions;
+	}
+
+	private parseQuestionsV2(fields: string[]) {
+		const questions: VotedQuestionModel[] = [];
+		const groupSize = 3;
+
+		for (let i = 0; i < fields.length; i += groupSize) {
+			const choicesInitialIndex = groupSize + i;
+			let [code, date, quantityOfChoicesStr] = fields.slice(i, i + 3);
+			let quantityOfChoices = Number(quantityOfChoicesStr);
+			let votes = fields.slice(choicesInitialIndex, choicesInitialIndex + quantityOfChoices).join(', ');
+			const checkCode = fields[choicesInitialIndex + quantityOfChoices];
+			const decodedCode = this.decodeQRCodeCodeField(code);
+			const question = this.getQuestion(decodedCode);
+			questions.push({
+				name: question?.name ?? `@${decodedCode}`,
+				date: this.decodeQRCodeDateField(date),
+				votes: this.decodeQRCodeStringField(votes),
+				checkCode
+			});
+			i += quantityOfChoices + 1;
+		}
 		return questions;
 	}
 

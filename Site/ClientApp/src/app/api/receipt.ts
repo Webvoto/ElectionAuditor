@@ -11,5 +11,6 @@ export interface ReceiptModel {
 export interface VotedQuestionModel {
 	name: string;
 	date: DateTime;
+	votes?: string;
 	checkCode: string;
 }
