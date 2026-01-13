@@ -150,7 +150,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 
 		for (let i = 0; i < fields.length; i += groupSize) {
 			const choicesInitialIndex = groupSize + i;
-			let [code, date, quantityOfChoicesStr] = fields.slice(i, i + 3);
+			let [code, date, quantityOfChoicesStr] = fields.slice(i, i + groupSize);
 			let quantityOfChoices = Number(quantityOfChoicesStr);
 			let votes = fields.slice(choicesInitialIndex, choicesInitialIndex + quantityOfChoices).join(', ');
 			const checkCode = fields[choicesInitialIndex + quantityOfChoices];
@@ -159,7 +159,7 @@ export class VotingReceiptValidatorComponent implements OnInit {
 			questions.push({
 				name: question?.name ?? `@${decodedCode}`,
 				date: this.decodeQRCodeDateField(date),
-				votes: this.decodeQRCodeStringField(votes),
+				votes: quantityOfChoices > 0 && votes === '' ? '***' : this.decodeQRCodeStringField(votes),
 				checkCode
 			});
 			i += quantityOfChoices + 1;
