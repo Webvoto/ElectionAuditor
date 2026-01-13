@@ -1,7 +1,7 @@
-using System.Reflection;
 using System.Text.Json.Serialization;
 using Webvoto.ElectionAuditor.Site.Authentication;
 using Webvoto.ElectionAuditor.Site.Authorization;
+using Webvoto.ElectionAuditor.Site.Classes;
 using Webvoto.ElectionAuditor.Site.Configuration;
 using Webvoto.ElectionAuditor.Site.Services;
 
@@ -11,8 +11,9 @@ public class Program {
 
 	public static void Main(string[] args) {
 
+		Console.WriteLine($"{Constants.ProductName} version {Util.GetProductVersion()}");
+
 		if (args.Contains("--")) {
-			Console.WriteLine($"Webvoto Election Auditor version {Assembly.GetEntryAssembly()!.GetName().Version}");
 			return;
 		}
 

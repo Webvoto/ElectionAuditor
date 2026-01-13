@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Webvoto.ElectionAuditor.Site.Classes;
 
 namespace Webvoto.ElectionAuditor.Site.Controllers;
 
@@ -17,7 +18,7 @@ public class SystemInfoController : ControllerBase {
 	[AllowAnonymous]
 	[HttpGet("info")]
 	public SystemInfo GetSystemInfo() => new() {
-		ProductName = "Webvoto Election Auditor",
-		ProductVersion = GetType().Assembly.GetName().Version?.ToString(),
+		ProductName = Constants.ProductName,
+		ProductVersion = Util.GetProductVersion(),
 	};
 }
