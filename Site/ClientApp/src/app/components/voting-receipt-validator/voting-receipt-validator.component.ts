@@ -1,30 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Constants } from '../../classes/constants';
 import { PropComponent } from '../common/prop/prop.component';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session.service';
 import { ReceiptModel, VotedQuestionModel } from '../../api/receipt';
 import { SessionModel } from '../../api/session';
 import { MatDividerModule } from '@angular/material/divider';
-import base32 from 'hi-base32';
-import { MatIconModule } from '@angular/material/icon';
-import { CryptoVerificationService } from '../../services/crypto-verification.service';
-import { DateTime, FixedOffsetZone } from 'luxon';
 import { DateTimePipe } from '../../pipes/date-time.pipe';
-
-enum ValidationResults {
-	Valid = "Valid",
-	Invalid = "Invalid",
-	NotSet = "NotSet ",
-}
-
-interface Validation {
-	result: ValidationResults;
-	class: string;
-	iconName: string;
-	message: string;
-}
+import { checkDocument, decodeCodeField, decodeDateField, decodeStringField, DocumentKinds, QRDocument, UnreadableDocumentError, ValidationResults } from '../../classes/qr-document';
+import { ValidationAlertComponent, ValidationMessages } from '../common/validation-alert/validation-alert.component';
+import { SourceNoteComponent } from '../common/source-note/source-note.component';
 
 @Component({
 	selector: 'app-voting-receipt-validator',
@@ -33,8 +18,9 @@ interface Validation {
 		CommonModule,
 		PropComponent,
 		MatDividerModule,
-		MatIconModule,
 		DateTimePipe,
+		ValidationAlertComponent,
+		SourceNoteComponent,
 	],
 	templateUrl: './voting-receipt-validator.component.html',
 	styleUrls: ['./voting-receipt-validator.component.scss']
@@ -43,100 +29,68 @@ export class VotingReceiptValidatorComponent implements OnInit {
 
 	session: SessionModel | null = null;
 	receipt: ReceiptModel | null = null;
+	result: ValidationResults | null = null;
 
-	signatureBase64: string = '';
-	messageToValidate: string = '';
-	validation: Validation | null = null;
-
-	possibleValidationsMap: Record<ValidationResults, Validation> = {
-		[ValidationResults.Valid]: {
-			result: ValidationResults.Valid,
-			message: 'Comprovante válido',
-			iconName: 'check_circle',
-			class: 'alert-success'
-		},
-		[ValidationResults.Invalid]: {
-			result: ValidationResults.Invalid,
-			message: 'Comprovante adulterado!',
-			iconName: 'cancel',
-			class: 'alert-danger'
-		},
-		[ValidationResults.NotSet]: {
-			result: ValidationResults.NotSet,
-			message: 'Não foi possível validar o comprovante. Isso pode indicar que o comprovante foi adulterado.',
-			iconName: 'warning',
-			class: 'alert-warning'
-		}
+	readonly messages: ValidationMessages = {
+		[ValidationResults.Valid]: 'Comprovante válido',
+		[ValidationResults.Invalid]: 'Comprovante adulterado!',
+		[ValidationResults.NotSet]: 'Não foi possível validar o comprovante. Isso pode indicar que o comprovante foi adulterado.',
 	};
-	
+
 	constructor(
 		private readonly route: ActivatedRoute,
 		private readonly sessionService: SessionService,
-		private readonly cryptoVerificationService: CryptoVerificationService,
 	) { }
 
 	async ngOnInit() {
-		await this.processRouteData();
-
-		if (this.session && this.receipt) {
-			let isValid = await this.cryptoVerificationService.verifyECDsaSignature(this.session.documentAuthenticationPublicKey, this.messageToValidate, this.signatureBase64);
-			this.validation = isValid ? this.possibleValidationsMap[ValidationResults.Valid] : this.possibleValidationsMap[ValidationResults.Invalid];
-		} else {
-			this.validation = this.possibleValidationsMap[ValidationResults.NotSet];
-		}
+		const checked = await checkDocument(
+			DocumentKinds.VotingReceipt,
+			this.route.snapshot.paramMap.get('data'),
+			sessionId => this.sessionService.get(sessionId),
+			(document, session) => this.readReceipt(document, session),
+		);
+		this.session = checked.session;
+		this.receipt = checked.content;
+		this.result = checked.result;
 	}
 
-	async processRouteData() {
-		const data = this.route.snapshot.paramMap.get('data');
-
-		if (!data) {
-			return;
+	private readReceipt(document: QRDocument, session: SessionModel | null): ReceiptModel {
+		const fields = document.fields;
+		if (fields.length < 4) {
+			throw new UnreadableDocumentError();
 		}
-		const parts = data.split(Constants.QRCodeFieldSeparator);
-		if (parts.length < 5) {
-			return;
-		}
-
-		this.messageToValidate = JSON.stringify(parts.slice(0, parts.length - 1));
-		this.signatureBase64 = this.decodeQRCodeBinaryField(parts[parts.length - 1]);
-
-		const qrCodeVersion = parts[0];
-		const sessionIdEncoded = parts[1];
-		this.session = await this.sessionService.get(sessionIdEncoded);
-
-		const questionFields = parts.slice(4, parts.length - 1);
-
-		this.receipt = {
-			session: this.session?.name ?? sessionIdEncoded,
-			memberIdentifier: parts[2],
-			memberName: this.decodeQRCodeStringField(parts[3]),
-			votedQuestions: this.getParsedQuestions(qrCodeVersion, questionFields),
-			authentication: parts[parts.length - 1]
+		return {
+			session: session?.name ?? document.sessionId,
+			memberIdentifier: fields[2],
+			memberName: decodeStringField(fields[3]),
+			votedQuestions: this.readQuestions(document.version, fields.slice(4), session),
+			authentication: document.authentication,
 		};
 	}
 
-	private getParsedQuestions(version: string, fields: any[]): any[] {
+	private readQuestions(version: string, fields: string[], session: SessionModel | null) {
 		switch (version) {
 			case '1':
-				return this.parseQuestions(fields);
+				return this.readQuestionsV1(fields, session);
 			case '2':
-				return this.parseQuestionsV2(fields);
+				return this.readQuestionsV2(fields, session);
 			default:
-				return this.parseQuestionsV2(fields);
+				throw new UnreadableDocumentError();
 		}
 	}
 
-	private parseQuestions(fields: string[]) {
+	private readQuestionsV1(fields: string[], session: SessionModel | null) {
 		const questions: VotedQuestionModel[] = [];
 		const groupSize = 3;
 
+		if (fields.length % groupSize !== 0) {
+			throw new UnreadableDocumentError();
+		}
 		for (let i = 0; i < fields.length; i += groupSize) {
 			const [code, date, checkCode] = fields.slice(i, i + groupSize);
-			const decodedCode = this.decodeQRCodeCodeField(code);
-			const question = this.getQuestion(decodedCode);
 			questions.push({
-				name: question?.name ?? `@${decodedCode}`,
-				date: this.decodeQRCodeDateField(date),
+				name: this.getQuestionName(decodeCodeField(code), session),
+				date: decodeDateField(date),
 				checkCode
 			});
 		}
@@ -144,22 +98,26 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		return questions;
 	}
 
-	private parseQuestionsV2(fields: string[]) {
+	private readQuestionsV2(fields: string[], session: SessionModel | null) {
 		const questions: VotedQuestionModel[] = [];
 		const groupSize = 3;
 
 		for (let i = 0; i < fields.length; i += groupSize) {
 			const choicesInitialIndex = groupSize + i;
-			let [code, date, quantityOfChoicesStr] = fields.slice(i, i + groupSize);
-			let quantityOfChoices = Number(quantityOfChoicesStr);
-			let votes = fields.slice(choicesInitialIndex, choicesInitialIndex + quantityOfChoices).join(', ');
+			const [code, date, quantityOfChoicesStr] = fields.slice(i, i + groupSize);
+			if (!/^\d+$/.test(quantityOfChoicesStr ?? '')) {
+				throw new UnreadableDocumentError();
+			}
+			const quantityOfChoices = Number(quantityOfChoicesStr);
+			const votes = fields.slice(choicesInitialIndex, choicesInitialIndex + quantityOfChoices).join(', ');
 			const checkCode = fields[choicesInitialIndex + quantityOfChoices];
-			const decodedCode = this.decodeQRCodeCodeField(code);
-			const question = this.getQuestion(decodedCode);
+			if (checkCode === undefined) {
+				throw new UnreadableDocumentError();
+			}
 			questions.push({
-				name: question?.name ?? `@${decodedCode}`,
-				date: this.decodeQRCodeDateField(date),
-				votes: quantityOfChoices > 0 && votes === '' ? '***' : this.decodeQRCodeStringField(votes),
+				name: this.getQuestionName(decodeCodeField(code), session),
+				date: decodeDateField(date),
+				votes: quantityOfChoices > 0 && votes === '' ? '***' : decodeStringField(votes),
 				checkCode
 			});
 			i += quantityOfChoices + 1;
@@ -167,37 +125,8 @@ export class VotingReceiptValidatorComponent implements OnInit {
 		return questions;
 	}
 
-	private getQuestion(code: string) {
-		return this.session?.questions.find(q => q.code == code);
-	}
-
-	private decodeQRCodeStringField(value: string | null) {
-		return value?.replaceAll(Constants.QRCodeSpaceStringEncoding, ' ') ?? '';
-	}
-
-	private decodeQRCodeCodeField(value: string | null) {
-		return value?.toLowerCase() ?? '';
-	}
-
-	private decodeQRCodeBinaryField(field: string) {
-		try {
-			const base32Array = base32.decode.asBytes(field);
-			const binaryString = base32Array.map((num) => String.fromCharCode(num)).join('');
-			return btoa(binaryString);
-		} catch {
-			console.error('Error decoding binary field:', field);
-			return '';
-		}
-	}
-
-	private decodeQRCodeDateField(dateStr: string) {
-		let match = /^(?<localDate>\d{12})(?<offsetSign>-?)(?<offsetHours>\d{2})(?<offsetMinutes>\d{2})$/.exec(dateStr);
-		if (match?.groups) {
-			let offsetString = `UTC${match.groups['offsetSign'] || '+'}${match.groups['offsetHours']}:${match.groups['offsetMinutes']}`;
-			let date = DateTime.fromFormat(match.groups['localDate'], 'yyMMddHHmmss', { zone: FixedOffsetZone.parseSpecifier(offsetString) });
-			return date;
-		} else {
-			throw new Error(`Bad date: '${dateStr}'`);
-		}
+	// A Question the Session no longer has is shown by its code, which the receipt does carry
+	private getQuestionName(code: string, session: SessionModel | null) {
+		return session?.questions.find(q => q.code == code)?.name ?? `@${code}`;
 	}
 }

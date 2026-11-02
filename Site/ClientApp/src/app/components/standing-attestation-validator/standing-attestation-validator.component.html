@@ -1,0 +1,54 @@
+
+<div class="card p-4 my-3">
+	<h3>Validação de Certidão de Situação</h3>
+	<mat-divider></mat-divider>
+
+	@if (attestation) {
+
+		<h4 class=" mt-2 mb-1">{{session?.sessionLabel || 'Sessão'}}</h4>
+
+		@if (session) {
+			<app-prop label="Nome">
+				{{attestation.session}}
+			</app-prop>
+
+			<app-prop label="URL">
+				{{session.url}}
+			</app-prop>
+		} @else {
+			<app-prop label="ID">
+				{{attestation.session}} (não encontrada)
+			</app-prop>
+		}
+
+		<h4>{{session?.memberLabel || 'Membro'}}</h4>
+
+		<app-prop [label]="attestation.memberIdentifierLabel">
+			{{attestation.memberIdentifier}}
+		</app-prop>
+
+		<h4>Situação</h4>
+
+		<p class="fw-bold">
+			{{groundTexts[attestation.ground]}}
+		</p>
+
+		<app-prop label="Data">
+			{{attestation.date | dateTime}}
+		</app-prop>
+
+		<h4>Autenticação</h4>
+
+		<app-prop>
+			{{attestation.authentication}}
+		</app-prop>
+	}
+
+	@if (result) {
+		<app-validation-alert [result]="result" [messages]="messages"></app-validation-alert>
+	}
+
+	<mat-divider></mat-divider>
+
+	<app-source-note componentPath="components/standing-attestation-validator/standing-attestation-validator.component.ts"></app-source-note>
+</div>
