@@ -57,22 +57,11 @@
 		</app-prop>
 	}
 
-	@if (validation) {
-		<div class="alert my-3 d-flex align-items-center py-4" [ngClass]="validation.class" role="alert">
-			<mat-icon>{{validation.iconName}}</mat-icon>
-			<div class="mx-2">
-				{{validation.message}}
-			</div>
-		</div>
+	@if (result) {
+		<app-validation-alert [result]="result" [messages]="messages"></app-validation-alert>
 	}
 
 	<mat-divider></mat-divider>
 
-	<p class="mt-2 note">
-		Esta validação é feita diretamente no navegador utilizando código aberto. Veja o
-		<a href="https://github.com/Webvoto/ElectionAuditor/blob/main/Site/ClientApp/src/app/components/voting-receipt-validator/voting-receipt-validator.component.ts" target="_blank">
-			código fonte
-			<mat-icon inline>open_in_new</mat-icon>
-		</a>
-	</p>
+	<app-source-note componentPath="components/voting-receipt-validator/voting-receipt-validator.component.ts"></app-source-note>
 </div>
