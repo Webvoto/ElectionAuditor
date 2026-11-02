@@ -36,40 +36,44 @@
 			<mat-icon inline>open_in_new</mat-icon>
 		</a>
 	</p>
+
+	<button mat-stroked-button color="warn" (click)="openVerifyDialog(verifyTpl)">
+		verificar chaves
+	</button>
 </div>
 
 <ng-template #pwdTpl>
-	<h2 mat-dialog-title>Baixar chave privada</h2>
+	<form [formGroup]="form">
+		<h2 mat-dialog-title>Baixar chave privada</h2>
 
-	<div mat-dialog-content class="dialog-grid">
+		<div mat-dialog-content class="dialog-grid">
+			<mat-form-field>
+				<mat-label>Insira uma senha</mat-label>
+				<input matInput type="password" placeholder="Senha" formControlName="password" required />
+				<mat-error *ngIf="form.get('password')?.hasError('required')">Informe a senha</mat-error>
+				<mat-error *ngIf="form.get('password')?.hasError('minlength')">
+					Digite pelo menos {{minPasswordLength}} caracteres
+				</mat-error>
+			</mat-form-field>
 
-		<mat-form-field>
-			<mat-label>Insira uma senha</mat-label>
-			<input matInput type="password" placeholder="Senha" [formControl]="password" (blur)="passwordError()" required />
-			@if (password.invalid || passwordError()) {
-				<mat-error>{{passwordError()}}</mat-error>
-			}
-		</mat-form-field>
+			<mat-form-field>
+				<mat-label>Confirme a senha</mat-label>
+				<input matInput type="password" placeholder="Senha" formControlName="confirm" required />
+				<mat-error *ngIf="form.get('confirm')?.hasError('required')">Confirme a senha</mat-error>
+				<mat-error *ngIf="form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched">As senhas não coincidem</mat-error>
+			</mat-form-field>
+		</div>
 
-		<mat-form-field>
-			<mat-label>Confirme a senha</mat-label>
-			<input matInput type="password" placeholder="Senha" [formControl]="confirm" (blur)="confirmError()" required />
-			@if (confirm.invalid || confirmError()) {
-				<mat-error>{{confirmError()}}</mat-error>
-			}
-		</mat-form-field>
+		<div mat-dialog-actions class="actions">
+			<button mat-flat-button [disabled]="formInvalid" [mat-dialog-close]="passwordValue">
+				Baixar chave privada
+			</button>
+			<button mat-stroked-button [mat-dialog-close]="null">
+				Cancelar
+			</button>
 
-	</div>
-
-	<div mat-dialog-actions class="actions">
-		<button mat-flat-button [disabled]="formInvalid" [mat-dialog-close]="password.value">
-			Baixar chave privada
-		</button>
-		<button mat-stroked-button [mat-dialog-close]="null">
-			Cancelar
-		</button>
-
-	</div>
+		</div>
+	</form>
 </ng-template>
 
 <ng-template #confirmTpl>
@@ -87,4 +91,62 @@
 			Cancelar
 		</button>
 	</div>
+</ng-template>
+
+<ng-template #verifyTpl>
+	<form [formGroup]="verifyForm" (ngSubmit)="verifyKey()">
+		<h2 mat-dialog-title>Verificar chave</h2>
+
+		<div mat-dialog-content class="dialog-grid">
+
+			<mat-form-field appearance="fill">
+				<mat-label>Chave pública (PEM)</mat-label>
+				<textarea matInput rows="4" formControlName="publicKey" placeholder="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"></textarea>
+				<button mat-icon-button matSuffix type="button" (click)="pubFileInput.click()" aria-label="Carregar arquivo">
+					<mat-icon>folder_open</mat-icon>
+				</button>
+			</mat-form-field>
+			<input hidden #pubFileInput type="file" accept=".pem,.txt" (change)="loadFile($event, 'publicKey')" />
+
+			<mat-form-field appearance="fill">
+				<mat-label>Chave privada (PEM criptografado)</mat-label>
+				<textarea matInput rows="4" formControlName="privateKey" placeholder="-----BEGIN ENCRYPTED PRIVATE KEY-----\n...\n-----END ENCRYPTED PRIVATE KEY-----"></textarea>
+				<button mat-icon-button matSuffix type="button" (click)="privFileInput.click()" aria-label="Carregar arquivo">
+					<mat-icon>folder_open</mat-icon>
+				</button>
+			</mat-form-field>
+			<input hidden #privFileInput type="file" accept=".pem,.txt" (change)="loadFile($event, 'privateKey')" />
+
+			<mat-form-field>
+				<mat-label>senha</mat-label>
+				<input matInput type="password" placeholder="Senha da chave privada" formControlName="password" required />
+			</mat-form-field>
+
+			<div class="mt-2" *ngIf="verifyState !== 'idle'">
+				<mat-divider class="my-2"></mat-divider>
+
+				<p *ngIf="verifyState === 'ok'">
+					<strong>Chaves válidas:</strong> a pública corresponde à privada.
+				</p>
+				<p *ngIf="verifyState === 'badpass'">
+					<strong>Senha incorreta ou chave privada inválida.</strong>
+				</p>
+				<p *ngIf="verifyState === 'mismatch'">
+					<strong>Não corresponde:</strong> a pública não bate com a privada.
+				</p>
+				<p *ngIf="verifyState === 'parse'">
+					<strong>Formato inválido:</strong> verifique os blocos PEM fornecidos.
+				</p>
+			</div>
+
+		</div>
+
+		<div mat-dialog-actions class="actions">
+			<button mat-flat-button color="primary" type="submit" [disabled]="verifyForm.invalid || verifying">
+				{{ verifying ? 'Verificando…' : 'Verificar chave' }}
+			</button>
+			<button mat-stroked-button type="button" [mat-dialog-close]="null">Fechar</button>
+		</div>
+
+	</form>
 </ng-template>
