@@ -1,0 +1,72 @@
+
+<div class="card p-4 my-3">
+	<h3>Validação de Comprovante de Justificativa</h3>
+	<mat-divider></mat-divider>
+
+	@if (receipt) {
+
+		<h4 class=" mt-2 mb-1">{{session?.sessionLabel || 'Sessão'}}</h4>
+
+		@if (session) {
+			<app-prop label="Nome">
+				{{receipt.session}}
+			</app-prop>
+
+			<app-prop label="URL">
+				{{session.url}}
+			</app-prop>
+		} @else {
+			<app-prop label="ID">
+				{{receipt.session}} (não encontrada)
+			</app-prop>
+		}
+
+		<h4>{{session?.memberLabel || 'Membro'}}</h4>
+
+		<app-prop [label]="receipt.memberIdentifierLabel">
+			{{receipt.memberIdentifier}}
+		</app-prop>
+
+		@if (receipt.memberName) {
+			<app-prop label="Nome">
+				{{receipt.memberName}}
+			</app-prop>
+		}
+
+		<h4>Declarante</h4>
+
+		@if (receipt.declarantIdentifier) {
+			<app-prop [label]="receipt.declarantIdentifierLabel">
+				{{receipt.declarantIdentifier}}
+			</app-prop>
+		}
+
+		<app-prop label="Nome">
+			{{receipt.declarantName}}
+		</app-prop>
+
+		<h4>Justificativa</h4>
+
+		<app-prop label="Data">
+			{{receipt.date | dateTime}}
+		</app-prop>
+
+		<app-prop label="Protocolo">
+			{{receipt.protocol}}
+		</app-prop>
+
+		<h4>Autenticação</h4>
+
+		<app-prop>
+			{{receipt.authentication}}
+		</app-prop>
+	}
+
+	@if (result) {
+		<app-validation-alert [result]="result" [messages]="messages"></app-validation-alert>
+	}
+
+	<mat-divider></mat-divider>
+
+	<app-source-note componentPath="components/justification-receipt-validator/justification-receipt-validator.component.ts"></app-source-note>
+</div>

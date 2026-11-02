@@ -7,6 +7,8 @@ export interface SessionModel {
 	sessionLabel: string;
 	questionSetLabel: string;
 	identifierLabel: string;
+	secondaryIdentifierLabel: string | null;
+	declarantIdentifierLabel: string | null;
 	memberLabel: string;
 	timeZone: string;
 }
