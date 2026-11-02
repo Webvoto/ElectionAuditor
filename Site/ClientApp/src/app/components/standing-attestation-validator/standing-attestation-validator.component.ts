@@ -41,7 +41,7 @@ export class StandingAttestationValidatorComponent implements OnInit {
 		[StandingAttestationGrounds.NotQualified]: 'Não consta como apto a votar e, portanto, não precisa de justificativa.',
 		[StandingAttestationGrounds.NotFound]: 'Não consta do cadastro com este identificador e, portanto, não precisa de justificativa.',
 		[StandingAttestationGrounds.HasVoted]: 'Consta como tendo votado e, portanto, não precisa de justificativa.',
-		[StandingAttestationGrounds.Justified]: 'Há uma ou mais justificativas registradas.',
+		[StandingAttestationGrounds.Justified]: 'Consta justificativa registrada.',
 	};
 
 	constructor(
