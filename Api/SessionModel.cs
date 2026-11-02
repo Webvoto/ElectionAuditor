@@ -19,6 +19,10 @@ namespace Webvoto.ElectionAuditor.Api {
 
 		public string IdentifierLabel { get; set; }
 
+		public string SecondaryIdentifierLabel { get; set; }
+
+		public string DeclarantIdentifierLabel { get; set; }
+
 		public string MemberLabel { get; set; }
 
 		public string TimeZone { get; set; }
